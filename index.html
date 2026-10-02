@@ -324,7 +324,10 @@ function yearRange(r){
   return a === '?' && b === '迄今' ? '—' : `${a} – ${b}`;
 }
 function rowHaystack(r){
-  return norm([r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9],r[10],r[11],r[12],r[14]].join(' '));
+  // Keyword search is intentionally independent of the dropdown filters.
+  // Search every value so a keyword can find matches anywhere in the dataset,
+  // including the manual-confirmation flag and any future columns.
+  return norm(r.join(' '));
 }
 function card(r, qk){
   const warn = !!r[13];
@@ -355,18 +358,21 @@ function query(){
   const model = modelSel.value;
   const year  = yearSel.value;
   const kw = norm(keywordIn.value);
-  const has = brand || model || year || kw;
-  if(!has){
+  const hasDropdownFilters = Boolean(brand || model || year);
+  const hasKeyword = Boolean(kw);
+  if(!hasDropdownFilters && !hasKeyword){
     results.innerHTML = `<div class="empty"><strong>請選擇條件或輸入關鍵字</strong>可依品牌 → 車型 → 年份層層篩選，或直接搜尋關鍵字</div>`;
     countLabel.textContent = '選擇品牌／車型或輸入關鍵字';
     return;
   }
   const out = [];
   for(const r of DATA){
+    // Each dropdown is optional; with no dropdown selected, keyword-only
+    // searches scan every row instead of requiring a brand/model/year first.
     if(brand && r[0] !== brand) continue;
     if(model && r[1] !== model) continue;
     if(year && yearKey(r) !== year) continue;
-    if(kw && !rowHaystack(r).includes(kw)) continue;
+    if(hasKeyword && !rowHaystack(r).includes(kw)) continue;
     out.push(r);
   }
   out.sort((a,b)=>{
