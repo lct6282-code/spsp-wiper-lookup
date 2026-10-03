@@ -336,7 +336,10 @@ function rowHaystack(r){
   return norm(r.join(' '));
 }
 function card(r, qk){
-  const warn = !!r[13];
+  // Only pending statuses show the warning badge; confirmed rows stay visibly confirmed.
+  const manual = String(r[13]||'').trim();
+  const warn = manual === '待確認' || manual === '需人工確認';
+  const confirmed = manual === '已人工確認';
   const note = [r[14], r[12] && !r[14] ? ('接頭說明：' + r[12]) : ''].filter(Boolean).join(' · ');
   return `<article class="card">
     <div class="card-h">
@@ -344,7 +347,7 @@ function card(r, qk){
         <div class="title">${hl(r[0],qk)} · ${hl(r[1],qk)}</div>
         <div class="sub">車身代號 ${hl(r[2],qk)}　｜　年份 ${esc(yearRange(r))}</div>
       </div>
-      <div>${warn?'<span class="tag-warn">需人工確認</span>':'<span class="tag-ok">資料可用</span>'}</div>
+      <div>${warn?'<span class="tag-warn">需人工確認</span>':confirmed?'<span class="tag-ok">已人工確認</span>':'<span class="tag-ok">資料可用</span>'}</div>
     </div>
     <div class="kv">
       <div class="item"><div class="k">左尺寸</div><div class="v">${esc(r[5]||'—')}</div></div>
