@@ -248,11 +248,17 @@ function fillBrands(){
     brandSel.appendChild(o);
   });
 }
-function yearKey(r){ return String(r[3]||'') + '\t' + String(r[4]||''); }
+function chassisKey(r){ return String(r[2]||'').trim(); }
+function yearKey(r){
+  // Keep chassis in the option value so same-year variants remain distinct.
+  return String(r[3]||'') + '\t' + String(r[4]||'') + '\t' + chassisKey(r);
+}
 function yearLabel(r){
   const a = r[3] || '?';
   const b = r[4] || '迄今';
-  return a + ' – ' + b;
+  const range = a + ' – ' + b;
+  const chassis = chassisKey(r);
+  return chassis ? `${range}（${chassis}）` : range;
 }
 function fillModels(){
   const brand = brandSel.value;
