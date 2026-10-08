@@ -31,7 +31,8 @@ body{min-height:100dvh}
   padding:12px;box-shadow:var(--shadow);margin-bottom:12px
 }
 .grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
-@media(min-width:720px){.grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+.field-keyword{grid-column:1 / -1}
+@media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;font-weight:600}
 input,select{
   width:100%;border:1px solid #cfdad4;border-radius:10px;padding:10px 12px;
@@ -124,6 +125,10 @@ body.locked > :not(#authGate){visibility:hidden}
         <select id="year" disabled><option value="">全部年份</option></select>
       </div>
       <div>
+        <label for="connector">接頭</label>
+        <select id="connector"><option value="">全部接頭</option></select>
+      </div>
+      <div class="field-keyword">
         <label for="keyword">搜尋關鍵字</label>
         <input id="keyword" type="search" placeholder="車身代號、接頭、備註…" autocomplete="off" enterkeyhint="search">
       </div>
@@ -135,7 +140,7 @@ body.locked > :not(#authGate){visibility:hidden}
   </section>
 
   <div class="meta">
-    <span id="countLabel">選擇品牌／車型或輸入關鍵字</span>
+    <span id="countLabel">選擇品牌、接頭或輸入關鍵字</span>
     <span class="badge" id="liveBadge">即時篩選</span>
   </div>
   <div class="list" id="results"></div>
@@ -188,7 +193,6 @@ async function ensureAuth(){
 }
 
 let DATA = [];
-let BRANDS = [];
 
 /** Normalize object or array rows → fixed 15-slot array */
 function toRow(r){
@@ -212,7 +216,6 @@ async function loadData(){
     const payload = await res.json();
     const raw = payload.rows || payload;
     DATA = (Array.isArray(raw) ? raw : []).map(toRow);
-    BRANDS = payload.brands || [...new Set(DATA.map(r=>r[0]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
     if(rowCount) rowCount.textContent = String(DATA.length);
     if(badge){
       const ts = payload.updatedAt || '';
@@ -230,24 +233,11 @@ async function loadData(){
 const brandSel = document.getElementById('brand');
 const modelSel = document.getElementById('model');
 const yearSel  = document.getElementById('year');
+const connectorSel = document.getElementById('connector');
 const keywordIn = document.getElementById('keyword');
 const results = document.getElementById('results');
 const countLabel = document.getElementById('countLabel');
 
-function clearSelect(sel, placeholder){
-  sel.innerHTML = '';
-  const o = document.createElement('option');
-  o.value = ''; o.textContent = placeholder;
-  sel.appendChild(o);
-}
-function fillBrands(){
-  clearSelect(brandSel, '全部品牌');
-  BRANDS.forEach(b=>{
-    const o = document.createElement('option');
-    o.value = b; o.textContent = b;
-    brandSel.appendChild(o);
-  });
-}
 function chassisKey(r){ return String(r[2]||'').trim(); }
 function yearKey(r){
   // Keep chassis in the option value so same-year variants remain distinct.
@@ -260,56 +250,120 @@ function yearLabel(r){
   const chassis = chassisKey(r);
   return chassis ? `${range}（${chassis}）` : range;
 }
-function fillModels(){
-  const brand = brandSel.value;
-  const prev = modelSel.value;
-  clearSelect(modelSel, '全部車型');
-  if(!brand){
-    modelSel.disabled = true;
-    fillYears();
-    return;
+function connectorOf(r){ return String(r[11]||'').trim(); }
+function compareZh(a,b){ return String(a).localeCompare(String(b),'zh-Hant'); }
+function connectorSort(a,b){
+  // A, B1, B2, B11, C … then non-code labels such as 待確認 / 不適用.
+  const re = /^([A-Za-z]+)(\d*)$/;
+  const ra = re.exec(a);
+  const rb = re.exec(b);
+  if(ra && rb){
+    const c = ra[1].toUpperCase().localeCompare(rb[1].toUpperCase());
+    if(c) return c;
+    const na = ra[2] === '' ? -1 : parseInt(ra[2], 10);
+    const nb = rb[2] === '' ? -1 : parseInt(rb[2], 10);
+    return na - nb;
   }
-  modelSel.disabled = false;
-  const models = [...new Set(
-    DATA.filter(r => r[0] === brand).map(r => r[1]).filter(Boolean)
-  )].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
-  models.forEach(m=>{
-    const o = document.createElement('option');
-    o.value = m; o.textContent = m;
-    modelSel.appendChild(o);
-  });
-  if(prev && models.includes(prev)) modelSel.value = prev;
-  else modelSel.value = '';
-  fillYears();
+  if(ra) return -1;
+  if(rb) return 1;
+  return compareZh(a,b);
 }
-function fillYears(){
-  const brand = brandSel.value;
-  const model = modelSel.value;
-  const prev = yearSel.value;
-  clearSelect(yearSel, '全部年份');
-  if(!brand || !model){
-    yearSel.disabled = true;
-    return;
+function uniqueValues(list){
+  const out = [];
+  const seen = new Set();
+  for(const v of list){
+    if(!v || seen.has(v)) continue;
+    seen.add(v);
+    out.push(v);
   }
-  yearSel.disabled = false;
-  const seen = new Map();
-  for(const r of DATA){
-    if(r[0] !== brand || r[1] !== model) continue;
-    const k = yearKey(r);
-    if(!seen.has(k)) seen.set(k, yearLabel(r));
+  return out;
+}
+function setOptions(sel, placeholder, entries, current){
+  sel.innerHTML = '';
+  const blank = document.createElement('option');
+  blank.value = '';
+  blank.textContent = placeholder;
+  sel.appendChild(blank);
+  const values = new Set();
+  for(const [value, label] of entries){
+    if(!value || values.has(value)) continue;
+    values.add(value);
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = label;
+    sel.appendChild(opt);
   }
-  const entries = [...seen.entries()].sort((a,b)=>{
-    const as = a[0].split('\t')[0];
-    const bs = b[0].split('\t')[0];
-    return String(as).localeCompare(String(bs),'zh-Hant',{numeric:true});
-  });
-  entries.forEach(([k,lab])=>{
-    const o = document.createElement('option');
-    o.value = k; o.textContent = lab;
-    yearSel.appendChild(o);
-  });
-  if(prev && seen.has(prev)) yearSel.value = prev;
-  else yearSel.value = '';
+  sel.value = current && values.has(current) ? current : '';
+}
+function syncDropdowns(){
+  // Each menu lists only values that still have rows under the other menus.
+  // Keyword stays out of this so typing does not reshuffle the lists.
+  let brand = brandSel.value;
+  let model = modelSel.value;
+  let year = yearSel.value;
+  let connector = connectorSel.value;
+  let brands = [];
+  let models = [];
+  let yearEntries = [];
+  let connectors = [];
+
+  for(let pass = 0; pass < 2; pass++){
+    brands = uniqueValues(
+      DATA.filter(r => !connector || connectorOf(r) === connector).map(r => r[0])
+    ).sort(compareZh);
+    if(brand && !brands.includes(brand)){
+      brand = '';
+      model = '';
+      year = '';
+    }
+    if(!brand){
+      model = '';
+      year = '';
+      models = [];
+    }else{
+      models = uniqueValues(
+        DATA.filter(r => r[0] === brand && (!connector || connectorOf(r) === connector)).map(r => r[1])
+      ).sort(compareZh);
+      if(model && !models.includes(model)){
+        model = '';
+        year = '';
+      }
+    }
+    if(!brand || !model){
+      year = '';
+      yearEntries = [];
+    }else{
+      const seen = new Map();
+      for(const r of DATA){
+        if(r[0] !== brand || r[1] !== model) continue;
+        if(connector && connectorOf(r) !== connector) continue;
+        const k = yearKey(r);
+        if(!seen.has(k)) seen.set(k, yearLabel(r));
+      }
+      yearEntries = [...seen.entries()].sort((a,b)=>{
+        return String(a[0].split('\t')[0]).localeCompare(String(b[0].split('\t')[0]),'zh-Hant',{numeric:true});
+      });
+      if(year && !seen.has(year)) year = '';
+    }
+    connectors = uniqueValues(DATA.filter(r => {
+      if(brand && r[0] !== brand) return false;
+      if(model && r[1] !== model) return false;
+      if(year && yearKey(r) !== year) return false;
+      return true;
+    }).map(connectorOf)).sort(connectorSort);
+    if(connector && !connectors.includes(connector)){
+      connector = '';
+      continue;
+    }
+    break;
+  }
+
+  setOptions(brandSel, '全部品牌', brands.map(b => [b, b]), brand);
+  modelSel.disabled = !brand;
+  setOptions(modelSel, '全部車型', models.map(m => [m, m]), model);
+  yearSel.disabled = !(brand && model);
+  setOptions(yearSel, '全部年份', yearEntries, year);
+  setOptions(connectorSel, '全部接頭', connectors.map(c => [c, c]), connector);
 }
 
 // indices: 0品牌 1車型 2車身代號 3年份起 4年份迄 5左 6右 7後 8CARBUFF 9PIAA 10最終 11SPSP 12說明 13人工 14備註
@@ -366,12 +420,13 @@ function query(){
   const brand = brandSel.value;
   const model = modelSel.value;
   const year  = yearSel.value;
+  const connector = connectorSel.value;
   const kw = norm(keywordIn.value);
-  const hasDropdownFilters = Boolean(brand || model || year);
+  const hasDropdownFilters = Boolean(brand || model || year || connector);
   const hasKeyword = Boolean(kw);
   if(!hasDropdownFilters && !hasKeyword){
-    results.innerHTML = `<div class="empty"><strong>請選擇條件或輸入關鍵字</strong>可依品牌 → 車型 → 年份層層篩選，或直接搜尋關鍵字</div>`;
-    countLabel.textContent = '選擇品牌／車型或輸入關鍵字';
+    results.innerHTML = `<div class="empty"><strong>請選擇條件或輸入關鍵字</strong>可依品牌 → 車型 → 年份 → 接頭層層篩選，或直接搜尋關鍵字</div>`;
+    countLabel.textContent = '選擇品牌、接頭或輸入關鍵字';
     return;
   }
   const out = [];
@@ -381,6 +436,7 @@ function query(){
     if(brand && r[0] !== brand) continue;
     if(model && r[1] !== model) continue;
     if(year && yearKey(r) !== year) continue;
+    if(connector && connectorOf(r) !== connector) continue;
     if(hasKeyword && !rowHaystack(r).includes(kw)) continue;
     out.push(r);
   }
@@ -401,26 +457,29 @@ function query(){
 let t = null;
 function schedule(){ clearTimeout(t); t = setTimeout(query, 120); }
 
-brandSel.addEventListener('change', ()=>{ fillModels(); query(); });
-modelSel.addEventListener('change', ()=>{ fillYears(); query(); });
-yearSel.addEventListener('change', query);
+brandSel.addEventListener('change', ()=>{ syncDropdowns(); query(); });
+modelSel.addEventListener('change', ()=>{ syncDropdowns(); query(); });
+yearSel.addEventListener('change', ()=>{ syncDropdowns(); query(); });
+connectorSel.addEventListener('change', ()=>{ syncDropdowns(); query(); });
 keywordIn.addEventListener('input', schedule);
 keywordIn.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); query(); }});
 document.getElementById('btnSearch').addEventListener('click', query);
 document.getElementById('btnReset').addEventListener('click', ()=>{
   brandSel.value = '';
-  fillModels();
+  modelSel.value = '';
+  yearSel.value = '';
+  connectorSel.value = '';
   keywordIn.value = '';
+  syncDropdowns();
   results.innerHTML = '';
-  countLabel.textContent = '選擇品牌／車型或輸入關鍵字';
+  countLabel.textContent = '選擇品牌、接頭或輸入關鍵字';
 });
 
 (async function(){
   await ensureAuth();
   try{
     await loadData();
-    fillBrands();
-    fillModels();
+    syncDropdowns();
   }catch(e){ /* shown above */ }
 })();
 </script>
