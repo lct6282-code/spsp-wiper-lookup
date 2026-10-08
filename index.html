@@ -31,7 +31,7 @@ body{min-height:100dvh}
   padding:12px;box-shadow:var(--shadow);margin-bottom:12px
 }
 .grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
-.field-keyword{grid-column:1 / -1}
+.field-keyword{margin-top:10px}
 @media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;font-weight:600}
 input,select{
@@ -86,8 +86,8 @@ button{
   background:#fff;line-height:0;cursor:zoom-in
 }
 .conn-zoom:focus-visible{outline:2px solid var(--brand2);outline-offset:2px}
-.conn-thumb{display:block;width:140px;max-width:100%;height:auto}
-@media(min-width:720px){.conn-thumb{width:168px}}
+.conn-thumb{display:block;width:98px;max-width:100%;height:auto}
+@media(min-width:720px){.conn-thumb{width:118px}}
 .connector-preview{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   margin-top:10px;padding:8px 10px;background:#f7faf8;border:1px solid var(--line);border-radius:10px
@@ -163,12 +163,12 @@ body.locked > :not(#authGate){visibility:hidden}
         <label for="connector">接頭</label>
         <select id="connector"><option value="">全部接頭</option></select>
       </div>
-      <div class="field-keyword">
-        <label for="keyword">搜尋關鍵字</label>
-        <input id="keyword" type="search" placeholder="車身代號、接頭、備註…" autocomplete="off" enterkeyhint="search">
-      </div>
     </div>
     <div id="connectorPreview" class="connector-preview" hidden></div>
+    <div class="field-keyword">
+      <label for="keyword">搜尋關鍵字</label>
+      <input id="keyword" type="search" placeholder="車身代號、接頭、備註…" autocomplete="off" enterkeyhint="search">
+    </div>
     <div class="actions">
       <button class="btn-main" id="btnSearch" type="button">查詢</button>
       <button class="btn-ghost" id="btnReset" type="button">清除</button>
