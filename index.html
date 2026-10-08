@@ -62,16 +62,51 @@ button{
 .card-h .sub{font-size:.8rem;color:var(--muted);margin-top:2px}
 .tag-warn{background:#fdecea;color:var(--warn);font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap}
 .tag-ok{background:#e8f7ef;color:#147a5a;font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px}
-.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media(min-width:640px){.kv{grid-template-columns:repeat(4,1fr)}}
-.kv .item{background:#f7faf8;border-radius:10px;padding:8px 10px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+@media(min-width:640px){.kv{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kv .item{background:#f7faf8;border-radius:10px;padding:8px 10px;min-width:0}
 .kv .k{font-size:.68rem;color:var(--muted);font-weight:700}
 .kv .v{font-size:.95rem;font-weight:800;margin-top:2px;word-break:break-word}
 .kv .item.wide{grid-column:1/-1}
+/* With a thumbnail, give SPSP its own row so the drawing sits beside the code. */
+.kv:has(.has-conn) > .item:nth-child(3),
+.kv:has(.has-conn) > .has-conn,
+.kv:has(.has-conn) > .item.wide{grid-column:1 / -1}
+@media(min-width:640px){
+  .kv:has(.has-conn){grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kv:has(.has-conn) > .item:nth-child(3){grid-column:auto}
+}
+.spsp-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .spsp{
   display:inline-flex;align-items:center;justify-content:center;min-width:2.2em;
   background:var(--brand);color:#fff;border-radius:8px;padding:2px 8px;font-weight:900;letter-spacing:.03em
 }
+.conn-zoom{
+  display:inline-flex;max-width:100%;padding:2px;border:1px solid #d7e2dc;border-radius:8px;
+  background:#fff;line-height:0;cursor:zoom-in
+}
+.conn-zoom:focus-visible{outline:2px solid var(--brand2);outline-offset:2px}
+.conn-thumb{display:block;width:140px;max-width:100%;height:auto}
+@media(min-width:720px){.conn-thumb{width:168px}}
+.connector-preview{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-top:10px;padding:8px 10px;background:#f7faf8;border:1px solid var(--line);border-radius:10px
+}
+.connector-preview[hidden]{display:none}
+.connector-preview-label{font-size:.82rem;font-weight:800;color:var(--brand)}
+.lightbox{
+  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  padding:16px;background:rgba(6,22,16,.72)
+}
+.lightbox[hidden]{display:none}
+.lightbox-card{
+  width:min(424px,100%);background:#fff;border-radius:14px;padding:12px 12px 10px;
+  box-shadow:0 16px 40px rgba(0,0,0,.28)
+}
+.lightbox-card img{display:block;width:100%;height:auto;background:#fff}
+.lightbox-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.lightbox-bar strong{color:var(--brand);font-size:.95rem}
+.lightbox-bar button{flex:0 0 auto;min-width:72px;background:var(--chip);color:var(--brand)}
 .note{margin-top:8px;font-size:.82rem;color:#444;background:#fffbeb;border:1px solid #f3e2a8;border-radius:10px;padding:8px 10px}
 .empty{text-align:center;padding:36px 16px;color:var(--muted)}
 .empty strong{display:block;color:var(--ink);margin-bottom:6px}
@@ -133,6 +168,7 @@ body.locked > :not(#authGate){visibility:hidden}
         <input id="keyword" type="search" placeholder="車身代號、接頭、備註…" autocomplete="off" enterkeyhint="search">
       </div>
     </div>
+    <div id="connectorPreview" class="connector-preview" hidden></div>
     <div class="actions">
       <button class="btn-main" id="btnSearch" type="button">查詢</button>
       <button class="btn-ghost" id="btnReset" type="button">清除</button>
@@ -146,6 +182,16 @@ body.locked > :not(#authGate){visibility:hidden}
   <div class="list" id="results"></div>
   <p class="foot">僅供參考 · 標示「需人工確認」請現場核對接頭／尺寸 · SPSP</p>
 </main>
+
+<div id="connLightbox" class="lightbox" hidden>
+  <div class="lightbox-card" role="dialog" aria-modal="true" aria-labelledby="connLightboxCap">
+    <img id="connLightboxImg" alt="">
+    <div class="lightbox-bar">
+      <strong id="connLightboxCap">接頭</strong>
+      <button type="button" id="connLightboxClose">關閉</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const AUTH_HASH = "4920425474509fee137faf135b0401a1ed49c4850cdf121733667ff527d59802";
@@ -364,6 +410,31 @@ function syncDropdowns(){
   yearSel.disabled = !(brand && model);
   setOptions(yearSel, '全部年份', yearEntries, year);
   setOptions(connectorSel, '全部接頭', connectors.map(c => [c, c]), connector);
+  updateConnectorPreview();
+}
+
+const CONNECTOR_IMGS = new Set('A,B1,B2,B3,B4,B5,B6,B7,B8,B9,B10,B11,B13,C,D,E,F,G'.split(','));
+function connectorImgSrc(code){
+  const c = String(code||'').trim();
+  return CONNECTOR_IMGS.has(c) ? ('img/connectors/' + c + '.webp') : '';
+}
+function connectorThumb(code){
+  const src = connectorImgSrc(code);
+  if(!src) return '';
+  const safe = esc(String(code||'').trim());
+  return `<button type="button" class="conn-zoom" data-code="${safe}" aria-label="放大查看接頭 ${safe}"><img class="conn-thumb" src="${src}" alt="SPSP 接頭 ${safe}" width="400" height="140" loading="lazy" decoding="async"></button>`;
+}
+function updateConnectorPreview(){
+  const box = document.getElementById('connectorPreview');
+  const code = String(connectorSel.value||'').trim();
+  const thumb = connectorThumb(code);
+  if(!thumb){
+    box.hidden = true;
+    box.innerHTML = '';
+    return;
+  }
+  box.hidden = false;
+  box.innerHTML = thumb + `<span class="connector-preview-label">接頭 ${esc(code)}</span>`;
 }
 
 // indices: 0品牌 1車型 2車身代號 3年份起 4年份迄 5左 6右 7後 8CARBUFF 9PIAA 10最終 11SPSP 12說明 13人工 14備註
@@ -395,6 +466,8 @@ function card(r, qk){
   const warn = manual === '待確認' || manual === '需人工確認';
   const confirmed = manual === '已人工確認';
   const note = [r[14], r[12] && !r[14] ? ('接頭說明：' + r[12]) : ''].filter(Boolean).join(' · ');
+  const code = connectorOf(r);
+  const thumb = connectorThumb(code);
   return `<article class="card">
     <div class="card-h">
       <div>
@@ -407,7 +480,7 @@ function card(r, qk){
       <div class="item"><div class="k">左尺寸</div><div class="v">${esc(r[5]||'—')}</div></div>
       <div class="item"><div class="k">右尺寸</div><div class="v">${esc(r[6]||'—')}</div></div>
       <div class="item"><div class="k">後尺寸</div><div class="v">${esc(r[7]||'—')}</div></div>
-      <div class="item"><div class="k">SPSP</div><div class="v"><span class="spsp">${esc(r[11]||'—')}</span></div></div>
+      <div class="item${thumb?' has-conn':''}"><div class="k">SPSP</div><div class="v spsp-line"><span class="spsp">${esc(code||'—')}</span>${thumb}</div></div>
       <div class="item wide"><div class="k">最終接頭</div><div class="v">${hl(r[10]||'—',qk)}</div></div>
       <div class="item"><div class="k">CARBUFF</div><div class="v">${hl(r[8]||'—',qk)}</div></div>
       <div class="item"><div class="k">PIAA</div><div class="v">${hl(r[9]||'—',qk)}</div></div>
@@ -464,6 +537,41 @@ connectorSel.addEventListener('change', ()=>{ syncDropdowns(); query(); });
 keywordIn.addEventListener('input', schedule);
 keywordIn.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); query(); }});
 document.getElementById('btnSearch').addEventListener('click', query);
+const lightbox = document.getElementById('connLightbox');
+const lightboxImg = document.getElementById('connLightboxImg');
+const lightboxCap = document.getElementById('connLightboxCap');
+function openLightbox(code, src){
+  lightboxImg.src = src;
+  lightboxImg.alt = 'SPSP 接頭 ' + code;
+  lightboxCap.textContent = '接頭 ' + code;
+  lightbox.hidden = false;
+  document.getElementById('connLightboxClose').focus();
+}
+function closeLightbox(){
+  if(lightbox.hidden) return;
+  lightbox.hidden = true;
+  lightboxImg.removeAttribute('src');
+}
+document.getElementById('connLightboxClose').addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', e => { if(e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLightbox(); });
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.conn-zoom');
+  if(!btn) return;
+  const img = btn.querySelector('img');
+  const src = img && img.getAttribute('src');
+  if(!src) return;
+  openLightbox(btn.dataset.code || '', src);
+});
+document.addEventListener('error', e => {
+  const img = e.target;
+  if(!(img instanceof HTMLImageElement) || !img.classList.contains('conn-thumb')) return;
+  const btn = img.closest('.conn-zoom');
+  if(btn) btn.remove();
+  const preview = document.getElementById('connectorPreview');
+  if(preview && !preview.querySelector('.conn-thumb')) preview.hidden = true;
+}, true);
+
 document.getElementById('btnReset').addEventListener('click', ()=>{
   brandSel.value = '';
   modelSel.value = '';
