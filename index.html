@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0c1511">
+<meta name="theme-color" content="#1c1c1e">
 <meta name="color-scheme" content="dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>SPSP 雨刷查詢</title>
 <style>
-:root{color-scheme:dark;--bg:#0c1511;--card:#16231d;--raised:#1d2d25;--ink:#edf5ef;--muted:#b0bfb5;--accent:#68dbac;--accent-ink:#082619;--line:#32443a;--warn:#ffce75;--warn-bg:#352b18;--danger:#ffaaa6;--danger-bg:#392420;--safe-b:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:dark;--bg:#1c1c1e;--card:#2c2c2e;--raised:#3a3a3c;--field:#161618;--photo-bg:#636366;--ink:#f2f2f7;--muted:#aeaeb2;--accent:#68dbac;--accent-ink:#082619;--line:#48484a;--warn:#ffce75;--warn-bg:#352b18;--danger:#ffaaa6;--danger-bg:#392420;--safe-b:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html{scroll-padding-top:150px}
 body{margin:0;min-height:100dvh;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-size:16px;line-height:1.5}
@@ -16,17 +16,17 @@ button,input,select,textarea{font:inherit}
 button,a,input,select,summary{-webkit-tap-highlight-color:transparent}
 button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--raised);color:var(--ink);padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer}
 button:hover{border-color:var(--accent)}
-button:active{background:#283e31}
+button:active{background:#48484a}
 button:disabled{opacity:.5;cursor:not-allowed}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 a{color:var(--accent);overflow-wrap:anywhere}
-input,select,textarea{width:100%;min-width:0;min-height:46px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);padding:10px 12px;font-size:16px}
-input::placeholder,textarea::placeholder{color:#97aa9d}
+input,select,textarea{width:100%;min-width:0;min-height:46px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);padding:10px 12px;font-size:16px}
+input::placeholder,textarea::placeholder{color:#98989d}
 input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-select:disabled{color:#8e9f93;opacity:.65}
+select:disabled{color:var(--muted);opacity:.65}
 input[type="search"]::-webkit-search-cancel-button{cursor:pointer}
 [hidden]{display:none!important}
-.top{position:sticky;top:0;z-index:20;background:#101e17;border-bottom:1px solid var(--line);padding:14px max(14px,env(safe-area-inset-left)) 0}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:14px max(14px,env(safe-area-inset-left)) 0}
 .top-inner,.wrap{max-width:980px;margin:auto}
 .brand-row{display:flex;align-items:center;gap:12px}
 .brand-mark{font-size:20px;font-weight:800;letter-spacing:-1px;color:var(--accent);line-height:1.2;border-right:1px solid var(--line);padding-right:12px}
@@ -34,9 +34,9 @@ h1{font-size:17px;margin:0;font-weight:700}
 .version{font-size:12px;color:var(--muted);margin:3px 0 0}
 .nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:12px}
 .nav button{border:0;border-radius:8px 8px 0 0;min-height:46px;background:transparent;color:var(--muted);padding:9px 4px;font-weight:600;position:relative}
-.nav button[aria-selected="true"]{color:var(--accent);background:#1b2e24}
+.nav button[aria-selected="true"]{color:var(--accent);background:var(--card)}
 .nav button[aria-selected="true"]:after{content:"";position:absolute;bottom:0;left:22%;right:22%;height:3px;background:var(--accent);border-radius:3px 3px 0 0}
-.nav-count{font-size:11px;margin-left:3px;padding:1px 5px;border-radius:20px;background:#31443a;color:var(--ink)}
+.nav-count{font-size:11px;margin-left:3px;padding:1px 5px;border-radius:20px;background:var(--raised);color:var(--ink)}
 .wrap{padding:16px 12px calc(30px + var(--safe-b))}
 .panel{padding:16px;border:1px solid var(--line);background:var(--card);border-radius:15px;margin-bottom:14px}
 .field label{display:block;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:6px}
@@ -58,7 +58,7 @@ h1{font-size:17px;margin:0;font-weight:700}
 .advanced[open] summary:after,.detail[open] summary:after{content:"－"}
 .advanced .filters{padding-top:4px;padding-bottom:4px}
 .active-filters{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-.filter-chip{font-size:12px;min-height:44px;padding:7px 10px;color:var(--accent);background:#20372a}
+.filter-chip{font-size:12px;min-height:44px;padding:7px 10px;color:var(--accent);background:var(--raised)}
 .meta{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:0 3px;margin:16px 0 10px}
 .meta strong{font-size:14px}
 .meta select{width:auto;max-width:160px;font-size:13px;min-height:44px;padding:8px 10px}
@@ -71,11 +71,11 @@ h1{font-size:17px;margin:0;font-weight:700}
 .card-sub{font-size:13px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
 .favorite{flex-shrink:0;width:44px;padding:0;color:var(--muted);font-size:23px;background:transparent}
 .favorite[aria-pressed="true"]{color:#ffce75;background:var(--warn-bg);border-color:#695932}
-.status{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 9px;border-radius:7px;margin-top:10px;background:#26372d;color:#c1cec6;max-width:100%;overflow-wrap:anywhere}
+.status{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:4px 9px;border-radius:7px;margin-top:10px;background:var(--raised);color:#d1d1d6;max-width:100%;overflow-wrap:anywhere}
 .status.confirmed{background:#163e2b;color:#91ecc0}
 .status.pending{background:var(--warn-bg);color:var(--warn)}
 .sizes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-.size{padding:9px 10px;background:var(--bg);border:1px solid #293b30;border-radius:9px;min-width:0}
+.size{padding:9px 10px;background:var(--bg);border:1px solid var(--line);border-radius:9px;min-width:0}
 .size .k{display:block;font-size:12px;color:var(--muted)}
 .size .v{display:block;font-size:23px;font-weight:700;margin-top:3px;line-height:1.25;overflow-wrap:anywhere}
 .size .v.missing{font-size:14px;line-height:1.65;color:var(--muted)}
@@ -85,8 +85,8 @@ h1{font-size:17px;margin:0;font-weight:700}
 .connector-info .k{font-size:12px;color:var(--muted);display:block}
 .connector-code{font-size:21px;display:block;font-weight:800;color:var(--accent);overflow-wrap:anywhere}
 .connector-code.unfit{font-size:17px;color:var(--danger)}
-.conn-zoom{background:#fff;padding:3px;border-color:#607365;line-height:0;flex:0 0 auto;max-width:48%;border-radius:9px;min-height:54px}
-.conn-thumb{display:block;width:140px;max-width:100%;height:auto;color:#193025;font-size:12px}
+.conn-zoom{background:var(--photo-bg);isolation:isolate;padding:3px;border-color:#747478;line-height:0;flex:0 0 auto;max-width:48%;border-radius:9px;min-height:54px}
+.conn-thumb{display:block;width:140px;max-width:100%;height:auto;color:var(--ink);font-size:12px;mix-blend-mode:multiply;filter:brightness(1.15)}
 .connector-caption{font-size:12px;color:var(--muted);margin-top:4px}
 .important-note{margin-top:12px;font-size:13px;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:9px 11px;overflow-wrap:anywhere}
 .detail{border-top:1px solid var(--line)}
@@ -124,16 +124,17 @@ h1{font-size:17px;margin:0;font-weight:700}
 .atlas-tile .tile-count{font-size:11px;color:var(--muted)}
 .atlas-grid-label{font-size:13px;color:var(--muted);margin:20px 0 -6px}
 .hl{color:var(--ink);background:#4a462b;border-radius:3px}
-.toast{position:fixed;bottom:calc(18px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:100;background:#e4f4e9;color:#10261a;border:1px solid #bddac8;box-shadow:0 8px 28px #0007;border-radius:12px;padding:11px 16px;max-width:calc(100% - 30px);width:max-content;font-size:14px;text-align:center;pointer-events:none}
+.toast{position:fixed;bottom:calc(18px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:100;background:var(--raised);color:var(--ink);border:1px solid var(--line);box-shadow:0 8px 28px #0007;border-radius:12px;padding:11px 16px;max-width:calc(100% - 30px);width:max-content;font-size:14px;text-align:center;pointer-events:none}
 dialog{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:16px;border-radius:15px;width:min(500px,calc(100% - 28px));max-height:calc(100dvh - 48px);overflow:auto}
-dialog::backdrop{background:rgba(0,9,4,.83)}
+dialog::backdrop{background:rgba(0,0,0,.83)}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .dialog-head h2{font-size:17px;margin:0}
 .dialog-head button{min-width:60px}
-.dialog-image{display:block;width:100%;background:#fff;border-radius:9px;height:auto}
+.image-matte{background:var(--photo-bg);isolation:isolate;border-radius:9px;overflow:hidden}
+.dialog-image{display:block;width:100%;height:auto;mix-blend-mode:multiply;filter:brightness(1.15)}
 .dialog-desc{font-size:14px;line-height:1.8;color:var(--muted);margin:12px 0 0}
 .manual-copy{min-height:180px;resize:vertical;font-size:14px}
-#authGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#0c1511;padding:20px}
+#authGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
 #authGate.hidden{display:none}
 .auth-box{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 22px}
 .auth-box .auth-brand{color:var(--accent);font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:14px}
@@ -203,7 +204,7 @@ body.locked>:not(#authGate){visibility:hidden}
   </section>
   <p class="foot">尺寸以資料庫標示為準 · 尺寸未建檔時請先確認<br>年份交界請核對車身代號／生產月份，安裝前請確認實車接頭。</p>
 </main>
-<dialog id="imageDialog" aria-labelledby="imageTitle"><div class="dialog-head"><h2 id="imageTitle">SPSP 接頭</h2><button type="button" data-close="imageDialog">關閉</button></div><img id="imageLarge" class="dialog-image" alt=""><p id="imageDescription" class="dialog-desc"></p></dialog>
+<dialog id="imageDialog" aria-labelledby="imageTitle"><div class="dialog-head"><h2 id="imageTitle">SPSP 接頭</h2><button type="button" data-close="imageDialog">關閉</button></div><div class="image-matte"><img id="imageLarge" class="dialog-image" alt=""></div><p id="imageDescription" class="dialog-desc"></p></dialog>
 <dialog id="copyDialog" aria-labelledby="copyTitle"><div class="dialog-head"><h2 id="copyTitle">複製規格</h2><button type="button" data-close="copyDialog">關閉</button></div><textarea id="manualCopy" class="manual-copy" readonly aria-label="可複製內容"></textarea><p class="dialog-desc">長按文字即可選取並複製。</p></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script>
