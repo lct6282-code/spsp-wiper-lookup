@@ -46,6 +46,7 @@ h1{font-size:17px;margin:0;font-weight:700}
 .search-field{margin-bottom:14px}
 .search-field input{padding:12px 14px;min-height:50px}
 .filters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.filters>.field-connector{grid-column:1/-1}
 .btn-main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
 .btn-main:active{background:#a3f1ca}
 .btn-quiet{background:transparent;color:var(--muted)}
@@ -143,7 +144,7 @@ dialog::backdrop{background:rgba(0,0,0,.83)}
 .auth-box .err{color:var(--danger);min-height:21px;margin:8px 0;font-size:13px}
 .auth-box button{width:100%;font-size:16px}
 body.locked>:not(#authGate){visibility:hidden}
-@media(min-width:700px){.filters{grid-template-columns:repeat(4,minmax(0,1fr))}.advanced .filters{grid-template-columns:1fr 1fr}.list{grid-template-columns:1fr 1fr;align-items:start}.nav{max-width:560px}.top{padding-top:18px}.wrap{padding-top:22px}.atlas-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.atlas-card{padding:18px}.atlas-card .conn-zoom{max-width:320px}.atlas-card p{font-size:14px}}
+@media(min-width:700px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.filters>.field-connector{grid-column:auto}.advanced .filters{grid-template-columns:1fr 1fr}.list{grid-template-columns:1fr 1fr;align-items:start}.nav{max-width:560px}.top{padding-top:18px}.wrap{padding-top:22px}.atlas-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.atlas-card{padding:18px}.atlas-card .conn-zoom{max-width:320px}.atlas-card p{font-size:14px}}
 @media(max-width:359px){.panel,.card-main{padding:12px}.sizes{gap:6px}.size{padding:8px}.size .v{font-size:21px}.size .v.missing{font-size:13px}.atlas-comparison{gap:8px}.atlas-card{padding:9px}.search-label .subtle{display:none}.card-title{font-size:16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -181,8 +182,7 @@ body.locked>:not(#authGate){visibility:hidden}
       <div class="filters">
         <div class="field"><label for="brand">品牌</label><select id="brand"><option value="">全部品牌</option></select></div>
         <div class="field"><label for="model">車型</label><select id="model" disabled><option value="">請先選品牌</option></select></div>
-        <div class="field"><label for="exactYear">年份（西元）</label><input id="exactYear" type="number" min="1900" max="2100" step="1" inputmode="numeric" placeholder="例如 2018"></div>
-        <div class="field"><label for="connector">SPSP 接頭</label><select id="connector"><option value="">全部接頭</option></select></div>
+        <div class="field field-connector"><label for="connector">SPSP 接頭</label><select id="connector"><option value="">全部接頭</option></select></div>
       </div>
       <details class="advanced"><summary>更多篩選</summary><div class="filters">
         <div class="field"><label for="year">年式／車身代號</label><select id="year" disabled><option value="">請先選車型</option></select></div>
@@ -329,7 +329,7 @@ function setOptions(select,placeholder,entries,current){
   for(const [value,label] of entries){const option=document.createElement('option');option.value=value;option.textContent=label;select.append(option);}
   select.value=entries.some(([value])=>value===current)?current:'';
 }
-function filters(){return {brand:$('brand').value,model:$('model').value,year:$('year').value,exactYear:$('exactYear').value,connector:$('connector').value,status:$('statusFilter').value,keyword:$('keyword').value};}
+function filters(){return {brand:$('brand').value,model:$('model').value,year:$('year').value,connector:$('connector').value,status:$('statusFilter').value,keyword:$('keyword').value};}
 function syncDropdowns(){
   let {brand,model,year,connector}=filters();
   let brands=[],models=[],years=[],connectors=[];
@@ -364,14 +364,12 @@ function keywordParts(value){
 }
 function findMatches(f){
   const parts=keywordParts(f.keyword);
-  const exact=f.exactYear?{year:Number(f.exactYear),month:null}:null;
   return state.rows.filter(row=>{
     if(f.brand&&row.v[0]!==f.brand)return false;
     if(f.model&&row.v[1]!==f.model)return false;
     if(f.year&&yearKey(row)!==f.year)return false;
     if(f.connector&&connectorOf(row)!==f.connector)return false;
     if(f.status&&(f.status==='unfit'?!isUnfit(row):statusOf(row)!==f.status))return false;
-    if(exact&&(!Number.isInteger(exact.year)||exact.year<1900||exact.year>2100||!matchesDate(row,exact)))return false;
     if(parts.dates.some(date=>!matchesDate(row,date)))return false;
     if(parts.modelTerms.some(term=>!new RegExp('(^|[^0-9])'+term+'([^0-9]|$)').test(row.v[1])))return false;
     return parts.terms.every(term=>row.haystack.includes(term));
@@ -383,7 +381,7 @@ function findMatches(f){
 }
 function renderChips(f){
   const chips=[];
-  const labels={brand:'品牌',model:'車型',connector:'接頭',exactYear:'年份',status:'狀態',keyword:'搜尋',year:'年式'};
+  const labels={brand:'品牌',model:'車型',connector:'接頭',status:'狀態',keyword:'搜尋',year:'年式'};
   for(const name of Object.keys(labels))if(f[name]){
     const value=name==='status'?(f[name]==='unfit'?'SPSP 不適用':statusLabel(f[name])):name==='year'?$('year').selectedOptions[0]?.textContent:f[name];
     chips.push(`<button type="button" class="filter-chip" data-clear="${name}" aria-label="移除${labels[name]}條件 ${esc(value)}">${esc(value)} ×</button>`);
@@ -504,7 +502,7 @@ function openImage(code){
   $('imageDescription').textContent=connectorDescription(code)||'目前僅提供型錄圖片，安裝前請依實車核對接頭形狀與卡榫。';
   $('imageDialog').showModal();
 }
-function resetFilters(){for(const id of ['brand','model','year','exactYear','connector','statusFilter','keyword'])$(id).value='';syncDropdowns();query();}
+function resetFilters(){for(const id of ['brand','model','year','connector','statusFilter','keyword'])$(id).value='';syncDropdowns();query();}
 function openSharedVehicle(){
   const key=decodeKey(new URL(location.href).searchParams.get('vehicle'));
   if(!key)return;
@@ -524,10 +522,10 @@ async function loadData(){
   }catch(error){state.loaded=false;$('dataMeta').textContent='資料載入失敗';$('results').innerHTML=`<div class="empty"><strong>暫時無法載入資料</strong><p>請確認網路連線，再試一次。</p><button type="button" data-retry>重新載入</button></div>`;console.error('SPSP database loading failed:',error);}
 }
 let searchTimer;
-$('searchForm').addEventListener('submit',event=>{event.preventDefault();clearTimeout(searchTimer);query();if(state.matches.length===1)remember(state.matches[0]);$('keyword').blur();$('exactYear').blur();});
+$('searchForm').addEventListener('submit',event=>{event.preventDefault();clearTimeout(searchTimer);query();if(state.matches.length===1)remember(state.matches[0]);$('keyword').blur();});
 for(const id of ['brand','model','year','connector'])$(id).addEventListener('change',()=>{syncDropdowns();query();});
 $('statusFilter').addEventListener('change',()=>query());$('sort').addEventListener('change',()=>query());
-for(const id of ['keyword','exactYear'])$(id).addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>query(),160);});
+$('keyword').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>query(),160);});
 $('btnReset').addEventListener('click',resetFilters);
 $('loadMore').addEventListener('click',()=>{state.visible+=PAGE_SIZE;renderMatches();});
 for(const id of ['compareA','compareB'])$(id).addEventListener('change',renderAtlas);
