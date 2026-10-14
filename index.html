@@ -505,7 +505,6 @@ function setView(view){
   if(view==='favorites'||view==='recent')renderSaved();
   if(view==='atlas')renderAtlas();
   window.scrollTo({top:0,behavior:'auto'});
-  requestAnimationFrame(()=>{if(state.view===view)window.scrollTo({top:0,behavior:'auto'});});
 }
 function toast(message){clearTimeout(toast.timer);$('toast').textContent=message;$('toast').hidden=false;toast.timer=setTimeout(()=>$('toast').hidden=true,3300);}
 function toggleFavorite(row,id){
