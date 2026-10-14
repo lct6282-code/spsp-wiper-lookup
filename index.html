@@ -29,9 +29,12 @@ input[type="search"]::-webkit-search-cancel-button{cursor:pointer}
 .top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:14px max(14px,env(safe-area-inset-left)) 0}
 .top-inner,.wrap{max-width:980px;margin:auto}
 .brand-row{display:flex;align-items:center;gap:12px}
+.brand-details{flex:1;min-width:0}
+.refresh-button{width:44px;flex:0 0 44px;padding:0;font-size:23px;background:transparent}
 .brand-mark{font-size:20px;font-weight:800;letter-spacing:-1px;color:var(--accent);line-height:1.2;border-right:1px solid var(--line);padding-right:12px}
 h1{font-size:17px;margin:0;font-weight:700}
 .version{font-size:12px;color:var(--muted);margin:3px 0 0}
+.data-date{display:inline-block;white-space:nowrap}
 .nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:12px}
 .nav button{border:0;border-radius:8px 8px 0 0;min-height:46px;background:transparent;color:var(--muted);padding:9px 4px;font-weight:600;position:relative}
 .nav button[aria-selected="true"]{color:var(--accent);background:var(--card)}
@@ -99,8 +102,12 @@ h1{font-size:17px;margin:0;font-weight:700}
 .detail-item .k{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
 .detail-item .v{font-size:14px;overflow-wrap:anywhere;white-space:pre-wrap}
 .detail-item ul{padding-left:18px;margin:5px 0;font-size:13px}
-.card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.card-actions button{padding:9px 5px;font-size:13px}
+.card-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:11px 12px;border-top:1px solid var(--line)}
+.card-actions button{padding:9px 4px;font-size:13px;min-width:0}
+.note-indicator{margin-left:auto;margin-right:10px;color:var(--warn);font-size:12px}
+.audit{margin-top:12px;border-top:1px solid var(--line)}
+.audit summary{padding:0;min-height:44px;font-size:13px}
+.audit .detail-grid{padding-top:6px}
 .empty{padding:32px 18px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:14px}
 .empty strong{display:block;color:var(--ink);font-size:16px;margin-bottom:6px}
 .empty p{font-size:14px;line-height:1.7;margin:0}
@@ -110,6 +117,14 @@ h1{font-size:17px;margin:0;font-weight:700}
 .saved-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .saved-head h2,.atlas-head h2{font-size:17px;margin:0}
 .saved-head p,.atlas-head p{font-size:13px;color:var(--muted);margin:4px 0 0}
+.saved-tools{display:flex;gap:6px;flex-shrink:0}
+.saved-tools button{font-size:12px;padding:8px 9px}
+.recent-searches{margin-bottom:20px}
+.recent-searches h3,.recent-vehicles-title{font-size:14px;margin:0 0 9px}
+.query-list{display:flex;flex-wrap:wrap;gap:8px}
+.query-list button{font-size:13px;max-width:100%;overflow-wrap:anywhere;text-align:left}
+.empty .recovery-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.empty .recovery-actions button{margin:0}
 .atlas-head{margin-bottom:16px}
 .atlas-pickers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .atlas-comparison{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -125,16 +140,20 @@ h1{font-size:17px;margin:0;font-weight:700}
 .atlas-tile .tile-count{font-size:11px;color:var(--muted)}
 .atlas-grid-label{font-size:13px;color:var(--muted);margin:20px 0 -6px}
 .hl{color:var(--ink);background:#4a462b;border-radius:3px}
-.toast{position:fixed;bottom:calc(18px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:100;background:var(--raised);color:var(--ink);border:1px solid var(--line);box-shadow:0 8px 28px #0007;border-radius:12px;padding:11px 16px;max-width:calc(100% - 30px);width:max-content;font-size:14px;text-align:center;pointer-events:none}
+.toast{position:fixed;bottom:calc(76px + var(--safe-b));left:50%;transform:translateX(-50%);z-index:100;background:var(--raised);color:var(--ink);border:1px solid var(--line);box-shadow:0 8px 28px #0007;border-radius:12px;padding:11px 16px;max-width:calc(100% - 30px);width:max-content;font-size:14px;text-align:center;pointer-events:none}
+.back-top{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:calc(18px + var(--safe-b));z-index:40;box-shadow:0 4px 16px #0006;font-size:12px;padding:10px 12px}
 dialog{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:16px;border-radius:15px;width:min(500px,calc(100% - 28px));max-height:calc(100dvh - 48px);overflow:auto}
 dialog::backdrop{background:rgba(0,0,0,.83)}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .dialog-head h2{font-size:17px;margin:0}
 .dialog-head button{min-width:60px}
-.image-matte{background:var(--photo-bg);isolation:isolate;border-radius:9px;overflow:hidden}
+.image-matte{background:var(--photo-bg);isolation:isolate;border-radius:9px;overflow:auto;max-height:50dvh;overscroll-behavior:contain}
 .dialog-image{display:block;width:100%;height:auto;mix-blend-mode:multiply;filter:brightness(1.15)}
+.image-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.image-tools button{font-size:13px;padding:9px 5px}
+.image-scale{font-size:12px;color:var(--muted);margin:7px 0 0;text-align:center}
 .dialog-desc{font-size:14px;line-height:1.8;color:var(--muted);margin:12px 0 0}
-.manual-copy{min-height:180px;resize:vertical;font-size:14px}
+.manual-copy{min-height:180px;resize:vertical;font-size:16px}
 #authGate{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
 #authGate.hidden{display:none}
 .auth-box{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 22px}
@@ -145,7 +164,7 @@ dialog::backdrop{background:rgba(0,0,0,.83)}
 .auth-box button{width:100%;font-size:16px}
 body.locked>:not(#authGate){visibility:hidden}
 @media(min-width:700px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.filters>.field-connector{grid-column:auto}.advanced .filters{grid-template-columns:1fr 1fr}.list{grid-template-columns:1fr 1fr;align-items:start}.nav{max-width:560px}.top{padding-top:18px}.wrap{padding-top:22px}.atlas-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.atlas-card{padding:18px}.atlas-card .conn-zoom{max-width:320px}.atlas-card p{font-size:14px}}
-@media(max-width:359px){.panel,.card-main{padding:12px}.sizes{gap:6px}.size{padding:8px}.size .v{font-size:21px}.size .v.missing{font-size:13px}.atlas-comparison{gap:8px}.atlas-card{padding:9px}.search-label .subtle{display:none}.card-title{font-size:16px}}
+@media(max-width:359px){.brand-row{gap:8px}.brand-mark{font-size:18px;padding-right:8px}h1{font-size:15px}.version{font-size:11px}.panel,.card-main{padding:12px}.sizes{gap:6px}.size{padding:8px}.size .v{font-size:21px}.size .v.missing{font-size:13px}.atlas-comparison{gap:8px}.atlas-card{padding:9px}.search-label .subtle{display:none}.card-title{font-size:16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -163,12 +182,12 @@ body.locked>:not(#authGate){visibility:hidden}
 </div>
 <header class="top">
   <div class="top-inner">
-    <div class="brand-row"><div class="brand-mark">SPSP</div><div><h1>雨刷尺寸／接頭查詢</h1><p class="version" id="dataMeta">載入資料中</p></div></div>
+    <div class="brand-row"><div class="brand-mark">SPSP</div><div class="brand-details"><h1>雨刷尺寸／接頭查詢</h1><p class="version" id="dataMeta">載入資料中</p></div><button id="refreshData" class="refresh-button" type="button" aria-label="更新查詢資料" title="更新查詢資料">↻</button></div>
     <nav class="nav" aria-label="查詢功能" role="tablist">
       <button id="tab-search" role="tab" aria-controls="searchView" aria-selected="true" data-view="search">查詢</button>
-      <button id="tab-favorites" role="tab" aria-controls="favoritesView" aria-selected="false" data-view="favorites">收藏<span class="nav-count" id="favoriteCount">0</span></button>
-      <button id="tab-recent" role="tab" aria-controls="recentView" aria-selected="false" data-view="recent">最近</button>
-      <button id="tab-atlas" role="tab" aria-controls="atlasView" aria-selected="false" data-view="atlas">接頭圖鑑</button>
+      <button id="tab-favorites" role="tab" aria-controls="favoritesView" aria-selected="false" tabindex="-1" data-view="favorites">收藏<span class="nav-count" id="favoriteCount">0</span></button>
+      <button id="tab-recent" role="tab" aria-controls="recentView" aria-selected="false" tabindex="-1" data-view="recent">最近</button>
+      <button id="tab-atlas" role="tab" aria-controls="atlasView" aria-selected="false" tabindex="-1" data-view="atlas">接頭圖鑑</button>
     </nav>
   </div>
 </header>
@@ -196,7 +215,7 @@ body.locked>:not(#authGate){visibility:hidden}
     <button id="loadMore" class="load-more" type="button" hidden>載入更多車型</button>
   </section>
   <section id="favoritesView" role="tabpanel" aria-labelledby="tab-favorites" hidden><div class="saved-head"><div><h2>收藏車型</h2><p>儲存在目前這支手機或瀏覽器</p></div></div><div id="favoritesList" class="list"></div></section>
-  <section id="recentView" role="tabpanel" aria-labelledby="tab-recent" hidden><div class="saved-head"><div><h2>最近查看</h2><p>開啟詳細資料後，會記住最近 12 筆車型</p></div></div><div id="recentList" class="list"></div></section>
+  <section id="recentView" role="tabpanel" aria-labelledby="tab-recent" hidden><div class="saved-head"><div><h2>最近查詢</h2><p>紀錄只儲存在目前瀏覽器</p></div><div class="saved-tools"><button id="undoRecent" type="button" hidden>復原</button><button id="clearRecent" class="btn-quiet" type="button">清除紀錄</button></div></div><div id="recentSearches" class="recent-searches" hidden><h3>最近搜尋</h3><div id="recentQueries" class="query-list"></div></div><h3 class="recent-vehicles-title">最近查看的車型</h3><div id="recentList" class="list"></div></section>
   <section id="atlasView" role="tabpanel" aria-labelledby="tab-atlas" hidden>
     <div class="atlas-head"><h2>接頭圖鑑與比較</h2><p>兩款並排核對，點圖片可放大。</p></div>
     <div class="atlas-pickers"><div class="field"><label for="compareA">接頭一</label><select id="compareA"></select></div><div class="field"><label for="compareB">接頭二</label><select id="compareB"></select></div></div>
@@ -204,9 +223,10 @@ body.locked>:not(#authGate){visibility:hidden}
   </section>
   <p class="foot">尺寸以資料庫標示為準 · 尺寸未建檔時請先確認<br>年份交界請核對車身代號／生產月份，安裝前請確認實車接頭。</p>
 </main>
-<dialog id="imageDialog" aria-labelledby="imageTitle"><div class="dialog-head"><h2 id="imageTitle">SPSP 接頭</h2><button type="button" data-close="imageDialog">關閉</button></div><div class="image-matte"><img id="imageLarge" class="dialog-image" alt=""></div><p id="imageDescription" class="dialog-desc"></p></dialog>
+<dialog id="imageDialog" aria-labelledby="imageTitle"><div class="dialog-head"><h2 id="imageTitle">SPSP 接頭</h2><button type="button" data-close="imageDialog">關閉</button></div><div class="image-matte" id="imageViewport"><img id="imageLarge" class="dialog-image" alt=""></div><div class="image-tools"><button id="imageSmaller" type="button" data-image-step="-50">縮小</button><button id="imageBigger" type="button" data-image-step="50">放大</button><button type="button" data-image-reset>還原</button></div><p id="imageScale" class="image-scale" role="status" aria-live="polite">100%</p><p id="imageDescription" class="dialog-desc"></p></dialog>
 <dialog id="copyDialog" aria-labelledby="copyTitle"><div class="dialog-head"><h2 id="copyTitle">複製規格</h2><button type="button" data-close="copyDialog">關閉</button></div><textarea id="manualCopy" class="manual-copy" readonly aria-label="可複製內容"></textarea><p class="dialog-desc">長按文字即可選取並複製。</p></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<button id="backToTop" class="back-top" type="button" hidden>↑ 回到頂端</button>
 <script>
 const AUTH_HASH = "4920425474509fee137faf135b0401a1ed49c4850cdf121733667ff527d59802";
 const AUTH_KEY = "spsp_wiper_auth_v1";
@@ -256,7 +276,7 @@ const PAGE_SIZE = 30;
 const CONNECTOR_CODES = ['A','B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B13','C','D','E','F','G'];
 const STORAGE_KEY = 'spsp.lookup.preferences.v2';
 const $ = id => document.getElementById(id);
-const state = { rows:[], matches:[], visible:PAGE_SIZE, view:'search', favorites:[], recent:[], updatedAt:'', loaded:false };
+const state = { rows:[], matches:[], visible:PAGE_SIZE, view:'search', favorites:[], recent:[], searches:[], undoHistory:null, updatedAt:'', loaded:false, loading:false, imageZoom:100 };
 const BRAND_ALIASES = [
   ['VW','Volkswagen 大眾'],['Mercedes','Mercedes-Benz MercedesBenz 奔馳'],['BMW','寶馬 寶馬汽車'],
   ['Skoda','Škoda 斯柯達'],['Subaru','斯巴魯'],['Peugeot','標緻'],['Masarati','Maserati'],
@@ -269,7 +289,7 @@ const MODEL_ALIASES = [
   [/Toyota/i,/RAV\s*4/i,'RAV4 RAV-4'],[/Mercedes/i,/C[-\s]?Class|^C\s/i,'CClass C-Class'],[/Mercedes/i,/E[-\s]?Class|^E\s/i,'EClass E-Class']
 ];
 function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function norm(value){return String(value??'').normalize('NFKC').toLowerCase().replace(/[\s\-_.·／/()（）]+/g,'');}
+function norm(value){return String(value??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s\-_.·・／/()（）]+/g,'');}
 function text(value){return String(value??'').trim();}
 function rowKey(values){return JSON.stringify(values.slice(0,5).map(text));}
 function rowValues(entry){
@@ -281,11 +301,15 @@ function prepareRows(entries){
   return entries.filter(entry=>entry&&(Array.isArray(entry)||typeof entry==='object')).map(entry=>{
     const v=rowValues(entry); while(v.length<15)v.push('');
     const meta=Array.isArray(entry)?{}:entry;
-    const aliases=BRAND_ALIASES.filter(([brand])=>norm(v[0]).includes(norm(brand))).map(([,alias])=>alias);
-    for(const [brand,model,alias] of MODEL_ALIASES)if(brand.test(v[0])&&model.test(v[1]))aliases.push(alias);
+    const brandAliases=BRAND_ALIASES.filter(([brand])=>norm(v[0]).includes(norm(brand))).map(([,alias])=>alias);
+    const aliases=[...brandAliases],modelAliases=[];
+    for(const [brand,model,alias] of MODEL_ALIASES)if(brand.test(v[0])&&model.test(v[1])){aliases.push(alias);modelAliases.push(...alias.split(/\s+/));}
     if(Array.isArray(meta.aliases))aliases.push(...meta.aliases.map(String));
     else if(meta.aliases)aliases.push(String(meta.aliases));
-    return { v, key:rowKey(v), meta, haystack:norm(v.join(' ')+' '+aliases.join(' ')) };
+    const brandForms=unique([v[0],...(v[0].match(/[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .-]*/g)||[]),...(v[0].match(/[\u3400-\u9fff]+/g)||[]),...brandAliases.flatMap(alias=>alias.split(/\s+/))].map(norm));
+    const modelForms=unique([v[1],...modelAliases].map(norm));
+    const identities=brandForms.flatMap(brand=>modelForms.map(model=>brand+model));
+    return { v, key:rowKey(v), meta, brandForms, modelForms, haystack:norm(v.join(' ')+' '+aliases.join(' ')+' '+identities.join(' ')) };
   });
 }
 function connectorOf(row){return text(row.v[11]);}
@@ -351,11 +375,18 @@ function syncDropdowns(){
   setOptions($('connector'),'全部接頭',connectors.map(v=>[v,v]),connector);
 }
 function keywordParts(value){
-  const words=text(value).normalize('NFKC').split(/[\s,，、]+/).filter(Boolean),dates=[],terms=[],modelTerms=[];
+  const originalWords=text(value).normalize('NFKC').split(/[\s,，、]+/).filter(Boolean),dates=[],terms=[],modelTerms=[];
+  const words=originalWords.flatMap(word=>{
+    const compact=word.match(/^(.+?)((?:19|20)\d{2})([/.\-](?:0?[1-9]|1[0-2]))?(?:年(?:式)?)?$/);
+    if(!compact)return [word];
+    const prefix=norm(compact[1]);
+    const knownPrefix=state.rows.some(row=>row.modelForms.some(model=>prefix===model||(prefix.endsWith(model)&&row.brandForms.includes(prefix.slice(0,-model.length)))));
+    return knownPrefix?[compact[1],compact[2]+(compact[3]||'')]:[word];
+  });
   for(const word of words){
-    const exact=word.match(/^((?:19|20)\d{2})(?:[/.\-](0?[1-9]|1[0-2]))?年?$/);
-    const otherTerms=words.filter(other=>other!==word&&!/^(?:19|20)\d{2}(?:[/.\-]\d{1,2})?年?$/.test(other));
-    const modelNumber=exact&&!exact[2]&&!word.endsWith('年')&&otherTerms.length&&state.rows.some(row=>new RegExp('(^|[^0-9])'+word+'([^0-9]|$)').test(row.v[1])&&otherTerms.every(term=>row.haystack.includes(norm(term))));
+    const exact=word.match(/^((?:19|20)\d{2})(?:[/.\-](0?[1-9]|1[0-2]))?(?:年(?:式)?)?$/);
+    const otherTerms=words.filter(other=>other!==word&&!/^(?:19|20)\d{2}(?:[/.\-]\d{1,2})?(?:年(?:式)?)?$/.test(other));
+    const modelNumber=exact&&!exact[2]&&!word.includes('年')&&otherTerms.length&&state.rows.some(row=>new RegExp('(^|[^0-9])'+word+'([^0-9]|$)').test(row.v[1])&&otherTerms.every(term=>row.haystack.includes(norm(term))));
     if(modelNumber)modelTerms.push(word);
     else if(exact){dates.push({year:Number(exact[1]),month:exact[2]?Number(exact[2]):null});}
     else terms.push(norm(word));
@@ -415,19 +446,25 @@ function card(row){
     <div class="sizes"><div class="size"><span class="k">左尺寸</span>${sizeMarkup(v[5])}</div><div class="size"><span class="k">右尺寸</span>${sizeMarkup(v[6])}</div></div>
     <div class="connector-line"><div class="connector-info"><span class="k">SPSP 接頭</span><strong class="connector-code${isUnfit(row)?' unfit':''}">${esc(code||'未建檔')}</strong><div class="connector-caption">${connectorImage(code)?'點圖片放大核對':'未提供對應圖片'}</div></div>${thumb(code)}</div>
     ${warning||dateWarning?`<div class="important-note">${esc([warning,dateWarning].filter(Boolean).join(' '))}</div>`:''}
-  </div><details class="detail" data-id="${id}"><summary>品牌對照與詳細資料</summary><div class="detail-content"><div class="detail-grid">
+  </div><details class="detail" data-id="${id}"><summary><span>品牌對照與詳細資料</span>${v[14]?'<span class="note-indicator">有備註</span>':''}</summary><div class="detail-content"><div class="detail-grid">
     ${detailItem('最終接頭',v[10],true)}${detailItem('CARBUFF 對照',v[8])}${detailItem('PIAA 對照',v[9])}${detailItem('接頭說明',v[12],true)}${detailItem('完整備註',v[14],true)}
+  </div><details class="audit"><summary>來源、核對日期與修改紀錄</summary><div class="detail-grid">
     ${detailItem('本筆核對日期',meta.checkedAt||'尚未記錄')}${detailItem('本筆更新日期',meta.updatedAt||'尚未記錄')}
     <div class="detail-item wide"><span class="k">資料來源</span><ul>${sourceHtml}</ul></div>
     ${meta.history.length?`<div class="detail-item wide"><span class="k">修改紀錄</span><ul>${meta.history.map(line=>'<li>'+esc(line)+'</li>').join('')}</ul></div>`:detailItem('修改紀錄','尚未建立獨立紀錄；既有資訊請見完整備註。',true)}
     ${detailItem('資料庫版本',state.updatedAt||'未提供更新時間',true)}
-  </div><div class="card-actions"><button type="button" data-action="copy" data-id="${id}">複製規格</button><button type="button" data-action="share" data-id="${id}">分享車型</button></div></div></details></article>`;
+  </div></details></div></details><div class="card-actions"><button type="button" data-action="copy" data-id="${id}">複製規格</button><button type="button" data-action="link" data-id="${id}">複製連結</button><button type="button" data-action="share" data-id="${id}">分享車型</button></div></article>`;
 }
 function empty(title,description){return `<div class="empty"><strong>${esc(title)}</strong><p>${esc(description)}</p></div>`;}
+function recoveryMatches(f){return text(f.keyword)&&['brand','model','year','connector','status'].some(key=>f[key])?findMatches({keyword:f.keyword}):[];}
+function noMatches(){
+  const alternative=recoveryMatches(filters());
+  return `<div class="empty"><strong>沒有符合的車型</strong><p>試試縮短車名，或移除部分篩選條件。</p><div class="recovery-actions">${alternative.length?`<button type="button" class="btn-main" data-recover-keyword>只用關鍵字查詢（${alternative.length} 筆）</button>`:''}<button type="button" data-reset>清除全部條件</button></div></div>`;
+}
 function renderMatches(){
   const shown=Math.min(state.visible,state.matches.length);
   $('countLabel').textContent=`找到 ${state.matches.length} 筆${state.matches.length>shown?' · 已顯示 '+shown+' 筆':''}`;
-  $('results').innerHTML=state.matches.length?state.matches.slice(0,shown).map(card).join(''):empty('沒有符合的車型','移除一個篩選條件，或試試車名與年份。');
+  $('results').innerHTML=state.matches.length?state.matches.slice(0,shown).map(card).join(''):noMatches();
   $('loadMore').hidden=shown>=state.matches.length;
   $('loadMore').textContent=`載入更多（還有 ${state.matches.length-shown} 筆）`;
 }
@@ -440,26 +477,35 @@ function query(resetPage=true){
   state.matches=findMatches(f);renderMatches();
 }
 function readPreferences(){
-  try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');if(Array.isArray(saved.favorites))state.favorites=saved.favorites.filter(v=>typeof v==='string').slice(0,500);if(Array.isArray(saved.recent))state.recent=saved.recent.filter(v=>typeof v==='string').slice(0,12);}catch{}
+  try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');state.favorites=Array.isArray(saved.favorites)?unique(saved.favorites.filter(v=>typeof v==='string')).slice(0,500):[];state.recent=Array.isArray(saved.recent)?unique(saved.recent.filter(v=>typeof v==='string')).slice(0,12):[];state.searches=Array.isArray(saved.searches)?unique(saved.searches.filter(v=>typeof v==='string').map(v=>v.trim().slice(0,200))).slice(0,6):[];}catch{}
 }
 function savePreferences(){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({favorites:state.favorites,recent:state.recent}));return true;}catch{toast('瀏覽器未允許儲存；本次操作仍有效。');return false;}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify({favorites:state.favorites,recent:state.recent,searches:state.searches}));return true;}catch{toast('瀏覽器未允許儲存；本次操作仍有效。');return false;}
 }
 function rowsForKeys(keys){const map=new Map(state.rows.map(r=>[r.key,r]));return keys.map(key=>map.get(key)).filter(Boolean);}
 function renderSaved(){
   const favorites=rowsForKeys(state.favorites),recent=rowsForKeys(state.recent);
   $('favoriteCount').textContent=favorites.length;
   $('favoritesList').innerHTML=favorites.length?favorites.map(card).join(''):empty('還沒有收藏車型','在查詢結果點 ☆，下次就能直接找到常用車型。');
-  $('recentList').innerHTML=recent.length?recent.map(card).join(''):empty('還沒有最近查看紀錄','開啟車型的詳細資料後，這裡會保留最近 12 筆。');
+  $('recentList').innerHTML=recent.length?recent.map(card).join(''):empty('還沒有最近查看紀錄','查看詳細資料、複製或分享車型後，這裡會保留最近 12 筆。');
+  $('recentSearches').hidden=!state.searches.length;
+  $('recentQueries').innerHTML=state.searches.map((value,index)=>`<button type="button" data-recent-query="${index}">${esc(value)}</button>`).join('');
+  $('clearRecent').disabled=!state.recent.length&&!state.searches.length;$('undoRecent').hidden=!state.undoHistory;
 }
 function remember(row){state.recent=[row.key,...state.recent.filter(key=>key!==row.key)].slice(0,12);savePreferences();}
+function rememberSearch(){const value=text($('keyword').value).slice(0,200);if(!value||!state.matches.length)return;state.searches=[value,...state.searches.filter(query=>norm(query)!==norm(value))].slice(0,6);savePreferences();}
+function clearHistory(){state.undoHistory={recent:[...state.recent],searches:[...state.searches]};state.recent=[];state.searches=[];savePreferences();renderSaved();toast('已清除最近紀錄，可按「復原」。');}
+function undoHistory(){if(!state.undoHistory)return;state.recent=unique([...state.recent,...state.undoHistory.recent]).slice(0,12);state.searches=unique([...state.searches,...state.undoHistory.searches]).slice(0,6);state.undoHistory=null;savePreferences();renderSaved();toast('已復原最近紀錄');}
+function jumpToResults(){const smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;$('countLabel').scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});}
 function setView(view){
   if(!['search','favorites','recent','atlas'].includes(view))return;
+  if(view===state.view)return;
   state.view=view;
-  for(const name of ['search','favorites','recent','atlas']){$(name+'View').hidden=name!==view;$('tab-'+name).setAttribute('aria-selected',String(name===view));}
+  for(const name of ['search','favorites','recent','atlas']){$(name+'View').hidden=name!==view;$('tab-'+name).setAttribute('aria-selected',String(name===view));$('tab-'+name).tabIndex=name===view?0:-1;}
   if(view==='favorites'||view==='recent')renderSaved();
   if(view==='atlas')renderAtlas();
   window.scrollTo({top:0,behavior:'auto'});
+  requestAnimationFrame(()=>{if(state.view===view)window.scrollTo({top:0,behavior:'auto'});});
 }
 function toast(message){clearTimeout(toast.timer);$('toast').textContent=message;$('toast').hidden=false;toast.timer=setTimeout(()=>$('toast').hidden=true,3300);}
 function toggleFavorite(row,id){
@@ -469,7 +515,7 @@ function toggleFavorite(row,id){
   // Update the same buttons so keyboard focus and open details remain intact.
   document.querySelectorAll(`[data-action="favorite"][data-id="${id}"]`).forEach(button=>{button.setAttribute('aria-pressed',String(!saved));button.setAttribute('aria-label',`${saved?'收藏':'取消收藏'} ${row.v[0]} ${row.v[1]}`);button.textContent=saved?'☆':'★';});
   $('favoriteCount').textContent=rowsForKeys(state.favorites).length;
-  if(state.view==='favorites')renderSaved();
+  if(state.view==='favorites'){renderSaved();($('favoritesList').querySelector('[data-action="favorite"]')||$('tab-favorites')).focus({preventScroll:true});}
   if(persisted)toast(saved?'已取消收藏':'已加入收藏');
 }
 function specification(row){return [row.v[0]+' '+row.v[1],yearRange(row)+(row.v[2]?'｜'+row.v[2]:''),'左：'+sizeText(row.v[5])+'／右：'+sizeText(row.v[6]),'SPSP 接頭：'+(connectorOf(row)||'未建檔'),'資料狀態：'+statusLabel(statusOf(row)),isUnfit(row)?'此車型 SPSP 接頭不適用。':'',row.v[14]?'備註：'+row.v[14]:'','安裝前請核對實車接頭及年式。'].filter(Boolean).join('\n');}
@@ -500,8 +546,9 @@ function openImage(code){
   const src=connectorImage(code);if(!src)return;
   $('imageTitle').textContent='SPSP 接頭 '+code;$('imageLarge').src=src;$('imageLarge').alt='SPSP 接頭 '+code+' 型錄圖片';
   $('imageDescription').textContent=connectorDescription(code)||'目前僅提供型錄圖片，安裝前請依實車核對接頭形狀與卡榫。';
-  $('imageDialog').showModal();
+  setImageZoom(100);$('imageDialog').showModal();
 }
+function setImageZoom(value){state.imageZoom=Math.max(100,Math.min(300,value));$('imageLarge').style.width=state.imageZoom+'%';$('imageScale').textContent=state.imageZoom+'%'+(state.imageZoom>100?' · 可左右滑動圖片':'');$('imageSmaller').disabled=state.imageZoom===100;$('imageBigger').disabled=state.imageZoom===300;if(state.imageZoom===100){$('imageViewport').scrollLeft=0;$('imageViewport').scrollTop=0;}}
 function resetFilters(){for(const id of ['brand','model','year','connector','statusFilter','keyword'])$(id).value='';syncDropdowns();query();}
 function openSharedVehicle(){
   const key=decodeKey(new URL(location.href).searchParams.get('vehicle'));
@@ -511,22 +558,37 @@ function openSharedVehicle(){
   resetFilters();$('brand').value=row.v[0];syncDropdowns();$('model').value=row.v[1];syncDropdowns();$('year').value=yearKey(row);query();remember(row);
 }
 async function loadData(){
-  $('dataMeta').textContent='載入最新資料中';
+  if(state.loading)return;
+  const wasLoaded=state.loaded;state.loading=true;$('refreshData').disabled=true;$('refreshData').setAttribute('aria-busy','true');
+  $('dataMeta').textContent=wasLoaded?'更新查詢資料中':'載入最新資料中';
   try{
     const response=await fetch('./data.json?t='+Date.now(),{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
     const payload=await response.json(),entries=Array.isArray(payload)?payload:payload.rows;
-    if(!Array.isArray(entries))throw new Error('Invalid database format');
-    state.rows=prepareRows(entries);state.updatedAt=text(payload.updatedAt);state.loaded=true;
-    $('dataMeta').textContent=`${state.rows.length} 筆車型${state.updatedAt?' · 更新 '+state.updatedAt:''}`;
-    readPreferences();syncDropdowns();query();renderSaved();openSharedVehicle();
-  }catch(error){state.loaded=false;$('dataMeta').textContent='資料載入失敗';$('results').innerHTML=`<div class="empty"><strong>暫時無法載入資料</strong><p>請確認網路連線，再試一次。</p><button type="button" data-retry>重新載入</button></div>`;console.error('SPSP database loading failed:',error);}
+    if(!Array.isArray(entries)||!entries.length)throw new Error('Invalid database format');
+    const rows=prepareRows(entries);if(!rows.length)throw new Error('Empty database');
+    state.rows=rows;state.updatedAt=text(payload.updatedAt);state.loaded=true;
+    $('dataMeta').innerHTML=`${state.rows.length} 筆車型${state.updatedAt?' · <span class="data-date">更新 '+esc(state.updatedAt)+'</span>':''}`;
+    if(!wasLoaded)readPreferences();syncDropdowns();query();renderSaved();if(state.view==='atlas')renderAtlas();if(!wasLoaded)openSharedVehicle();else toast('資料已更新，查詢條件已保留。');
+  }catch(error){
+    if(wasLoaded){$('dataMeta').textContent=`${state.rows.length} 筆車型 · 更新失敗，保留原資料`;toast('更新失敗，原資料仍可查詢。請稍後再試。');}
+    else{$('dataMeta').textContent='資料載入失敗';$('results').innerHTML=`<div class="empty"><strong>暫時無法載入資料</strong><p>請確認網路連線，再試一次。</p><button type="button" data-retry>重新載入</button></div>`;}
+    console.error('SPSP database loading failed:',error);
+  }finally{state.loading=false;$('refreshData').disabled=false;$('refreshData').removeAttribute('aria-busy');}
 }
 let searchTimer;
-$('searchForm').addEventListener('submit',event=>{event.preventDefault();clearTimeout(searchTimer);query();if(state.matches.length===1)remember(state.matches[0]);$('keyword').blur();});
+let composing=false;
+$('searchForm').addEventListener('submit',event=>{event.preventDefault();if(composing)return;clearTimeout(searchTimer);query();rememberSearch();if(state.matches.length===1)remember(state.matches[0]);$('keyword').blur();jumpToResults();});
 for(const id of ['brand','model','year','connector'])$(id).addEventListener('change',()=>{syncDropdowns();query();});
 $('statusFilter').addEventListener('change',()=>query());$('sort').addEventListener('change',()=>query());
-$('keyword').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>query(),160);});
+$('keyword').addEventListener('compositionstart',()=>{composing=true;clearTimeout(searchTimer);});
+$('keyword').addEventListener('compositionend',()=>{composing=false;clearTimeout(searchTimer);searchTimer=setTimeout(()=>query(),160);});
+$('keyword').addEventListener('input',event=>{clearTimeout(searchTimer);if(!composing&&!event.isComposing)searchTimer=setTimeout(()=>query(),160);});
 $('btnReset').addEventListener('click',resetFilters);
+$('refreshData').addEventListener('click',loadData);
+$('clearRecent').addEventListener('click',clearHistory);$('undoRecent').addEventListener('click',undoHistory);
+$('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
+window.addEventListener('scroll',()=>{$('backToTop').hidden=window.scrollY<500;},{passive:true});
+window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY||event.key===null){readPreferences();state.undoHistory=null;if(state.loaded){renderSaved();if(state.view==='search')query(false);}}});
 $('loadMore').addEventListener('click',()=>{state.visible+=PAGE_SIZE;renderMatches();});
 for(const id of ['compareA','compareB'])$(id).addEventListener('change',renderAtlas);
 document.querySelector('.nav').addEventListener('click',event=>{const button=event.target.closest('[data-view]');if(button)setView(button.dataset.view);});
@@ -535,6 +597,11 @@ document.addEventListener('click',async event=>{
   const retry=event.target.closest('[data-retry]');if(retry){await loadData();return;}
   const close=event.target.closest('[data-close]');if(close){$(close.dataset.close).close();return;}
   const zoom=event.target.closest('[data-zoom]');if(zoom){openImage(zoom.dataset.zoom);return;}
+  const scale=event.target.closest('[data-image-step]');if(scale){setImageZoom(state.imageZoom+Number(scale.dataset.imageStep));return;}
+  if(event.target.closest('[data-image-reset]')){setImageZoom(100);return;}
+  if(event.target.closest('[data-reset]')){resetFilters();$('keyword').focus();return;}
+  if(event.target.closest('[data-recover-keyword]')){const keyword=$('keyword').value;resetFilters();$('keyword').value=keyword;query();rememberSearch();jumpToResults();return;}
+  const recentQuery=event.target.closest('[data-recent-query]');if(recentQuery){const value=state.searches[Number(recentQuery.dataset.recentQuery)];if(value){resetFilters();$('keyword').value=value;query();rememberSearch();setView('search');jumpToResults();}return;}
   const clear=event.target.closest('[data-clear]');if(clear){const key=clear.dataset.clear;$(key==='status'?'statusFilter':key).value='';syncDropdowns();query();return;}
   const use=event.target.closest('[data-use-connector]');if(use){resetFilters();$('connector').value=use.dataset.useConnector;syncDropdowns();query();setView('search');$('connector').focus();return;}
   const compare=event.target.closest('[data-compare]');if(compare){$('compareA').value=compare.dataset.compare;renderAtlas();return;}
@@ -542,6 +609,7 @@ document.addEventListener('click',async event=>{
   const id=Number(action.dataset.id),row=state.rows[id];if(!row)return;
   if(action.dataset.action==='favorite')toggleFavorite(row,id);
   if(action.dataset.action==='copy'){remember(row);await copyText(specification(row));}
+  if(action.dataset.action==='link'){remember(row);await copyText(shareUrl(row),'複製車型連結');}
   if(action.dataset.action==='share'){remember(row);await shareRow(row);}
 });
 document.addEventListener('toggle',event=>{if(event.target.matches('details.detail')&&event.target.open){const row=state.rows[Number(event.target.dataset.id)];if(row)remember(row);}},true);
