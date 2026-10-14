@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e4e6e9" id="themeColor">
+<title>SPSP 手機配色比較</title>
+<style>
+:root{color-scheme:light;--bg:#e4e6e9;--card:#f1f2f4;--raised:#dce0e5;--field:#d6d9de;--ink:#1d232b;--muted:#565d67;--line:#b9c0c8;--accent:#177750;--photo:#c2c6cc}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif}
+main{max-width:620px;margin:auto;padding:18px 14px calc(24px + env(safe-area-inset-bottom,0px))}
+h1{font-size:21px;line-height:1.3;margin:0 0 5px}p{margin:0}.intro{font-size:14px;color:var(--muted)}
+button,a,input{-webkit-tap-highlight-color:transparent}button{font:inherit;color:var(--ink);cursor:pointer}a{color:var(--accent)}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:16px 0 12px}
+.option{display:flex;align-items:center;gap:9px;text-align:left;min-height:52px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:11px;font-size:14px;font-weight:600;min-width:0}
+.option[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:0}.option .check{margin-left:auto;color:var(--accent);font-size:16px}.swatch{width:24px;height:24px;flex:0 0 24px;background:var(--swatch);border:1px solid var(--line);border-radius:7px}
+.selection{font-size:14px;margin-bottom:12px;font-weight:600}.preview{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--bg)}
+.app-head{padding:14px 13px 0;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:10px}.logo{font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--accent);padding-right:10px;border-right:1px solid var(--line)}.app-title{font-size:16px;font-weight:700}.version{font-size:11px;color:var(--muted);margin-top:3px}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;margin-top:12px;text-align:center;font-size:13px;color:var(--muted)}.tabs span{padding:10px 1px}.tabs .active{background:var(--card);color:var(--accent);border-radius:8px 8px 0 0;border-bottom:3px solid var(--accent);font-weight:600}
+.app-content{padding:13px}.query{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:12px}.query-label{font-size:12px;font-weight:600;margin-bottom:5px}.field{background:var(--field);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden}.card-main{padding:14px}.card-top{display:flex;justify-content:space-between;gap:10px}.car-brand{font-size:12px;color:var(--muted)}.car-name{font-size:18px;font-weight:700;margin-top:3px}.sub{font-size:13px;color:var(--muted);margin-top:4px}.star{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:24px}.status{display:inline-block;font-size:12px;border-radius:6px;padding:4px 8px;color:var(--muted);background:var(--raised);margin-top:9px}
+.sizes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.size{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}.label{font-size:12px;color:var(--muted)}.number{font-size:25px;font-weight:700;margin-top:3px;line-height:1.3}.unit{font-size:13px;font-weight:400;margin-left:2px;color:var(--muted)}
+.connector{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}.code{font-size:22px;color:var(--accent);font-weight:800}.photo{width:43%;max-width:170px;border-radius:9px;background:var(--photo);isolation:isolate;padding:5px;border:1px solid var(--line)}.photo img{display:block;width:100%;height:auto;mix-blend-mode:multiply;filter:brightness(1.15)}
+.details{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:11px 14px;font-size:13px;color:var(--muted)}.card-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:10px;border-top:1px solid var(--line)}.card-actions span{padding:10px 2px;border-radius:8px;border:1px solid var(--line);background:var(--raised);text-align:center;font-size:12px;font-weight:600}
+.bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:13px}.copy{min-height:44px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:14px}.hint{font-size:12px;color:var(--muted);margin-top:10px}.copy-message{font-size:13px;color:var(--accent);min-height:20px;margin-top:8px}
+.manual-copy{margin-top:8px}.manual-copy input{width:100%;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:9px;background:var(--field);color:var(--ink);padding:10px}[hidden]{display:none!important}
+@media(max-width:359px){main{padding:15px 10px 24px}.option{padding:9px 10px;font-size:13px;gap:7px}.app-title{font-size:14px}.logo{font-size:20px;padding-right:8px}.brand{gap:8px}.app-content{padding:10px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>手機配色比較</h1>
+  <p class="intro">點選顏色查看；選好後回覆我配色名稱。</p>
+  <div class="options" role="group" aria-label="選擇配色">
+    <button class="option" type="button" data-theme="light-gray" aria-pressed="true"><span class="swatch" style="--swatch:#e4e6e9" aria-hidden="true"></span>淺灰<span class="check" aria-hidden="true">✓</span></button>
+    <button class="option" type="button" data-theme="charcoal" aria-pressed="false"><span class="swatch" style="--swatch:#1c1c1e" aria-hidden="true"></span>iPhone 深灰<span class="check" aria-hidden="true"></span></button>
+    <button class="option" type="button" data-theme="midnight" aria-pressed="false"><span class="swatch" style="--swatch:#142031" aria-hidden="true"></span>午夜藍<span class="check" aria-hidden="true"></span></button>
+    <button class="option" type="button" data-theme="slate" aria-pressed="false"><span class="swatch" style="--swatch:#273340" aria-hidden="true"></span>石墨藍灰<span class="check" aria-hidden="true"></span></button>
+    <button class="option" type="button" data-theme="forest" aria-pressed="false"><span class="swatch" style="--swatch:#162824" aria-hidden="true"></span>墨綠<span class="check" aria-hidden="true"></span></button>
+    <button class="option" type="button" data-theme="plum" aria-pressed="false"><span class="swatch" style="--swatch:#292030" aria-hidden="true"></span>煙燻紫<span class="check" aria-hidden="true"></span></button>
+  </div>
+  <p class="selection" id="selection" role="status" aria-live="polite">目前選擇：淺灰</p>
+  <section class="preview" aria-label="網站配色預覽">
+    <div class="app-head"><div class="brand"><div class="logo">SPSP</div><div><div class="app-title">雨刷尺寸／接頭查詢</div><div class="version">配色預覽</div></div></div><div class="tabs"><span class="active">查詢</span><span>收藏</span><span>最近</span><span>接頭圖鑑</span></div></div>
+    <div class="app-content">
+      <div class="query"><div class="query-label">快速找車型</div><div class="field">ToyotaCamry2018</div></div>
+      <article class="card"><div class="card-main"><div class="card-top"><div><div class="car-brand">Toyota 豐田</div><div class="car-name">Camry</div><div class="sub">2012 – 2020<br>車身代號 7代／國產</div></div><span class="star" aria-label="收藏示意">☆</span></div><span class="status">尚未核對</span><div class="sizes"><div class="size"><div class="label">左尺寸</div><div class="number">26<span class="unit">吋</span></div></div><div class="size"><div class="label">右尺寸</div><div class="number">18<span class="unit">吋</span></div></div></div><div class="connector"><div><div class="label">SPSP 接頭</div><div class="code">A</div><div class="label">點圖片放大核對</div></div><div class="photo"><img src="img/connectors/A.webp" alt="SPSP A 接頭" width="400" height="140"></div></div></div><div class="details"><span>品牌對照與詳細資料</span><span>＋</span></div><div class="card-actions" aria-label="卡片操作示意"><span>複製規格</span><span>複製連結</span><span>分享車型</span></div></article>
+    </div>
+  </section>
+  <div class="bottom"><button id="copyChoice" type="button" class="copy">複製配色名稱</button><a href="./">返回雨刷查詢</a></div>
+  <p class="hint">此頁用於比較顏色，正式網站會在你選好後套用。</p>
+  <p id="copyMessage" class="copy-message" role="status" aria-live="polite"></p>
+  <div id="manualCopy" class="manual-copy" hidden><label for="choiceText" class="hint">長按文字複製，再貼回聊天</label><input id="choiceText" readonly></div>
+</main>
+<script>
+const palettes={
+  'light-gray':{name:'淺灰',scheme:'light',bg:'#e4e6e9',card:'#f1f2f4',raised:'#dce0e5',field:'#d6d9de',ink:'#1d232b',muted:'#565d67',line:'#b9c0c8',accent:'#177750',photo:'#c2c6cc'},
+  charcoal:{name:'iPhone 深灰',scheme:'dark',bg:'#1c1c1e',card:'#2c2c2e',raised:'#3a3a3c',field:'#161618',ink:'#f2f2f7',muted:'#aeaeb2',line:'#48484a',accent:'#68dbac',photo:'#636366'},
+  midnight:{name:'午夜藍',scheme:'dark',bg:'#142031',card:'#202e43',raised:'#2d3e55',field:'#0f1929',ink:'#f0f5fb',muted:'#b5c3d5',line:'#465a74',accent:'#78bfff',photo:'#69788c'},
+  slate:{name:'石墨藍灰',scheme:'dark',bg:'#273340',card:'#354352',raised:'#455568',field:'#1c2835',ink:'#f4f7fa',muted:'#c0ccd9',line:'#5c6e83',accent:'#8ac4e8',photo:'#8795a3'},
+  forest:{name:'墨綠',scheme:'dark',bg:'#162824',card:'#233a33',raised:'#304b42',field:'#11201c',ink:'#f0f7f3',muted:'#b3c9bf',line:'#4b685b',accent:'#8cddb4',photo:'#738a7f'},
+  plum:{name:'煙燻紫',scheme:'dark',bg:'#292030',card:'#392c43',raised:'#4b3c57',field:'#201824',ink:'#f7f2fa',muted:'#cbbdd5',line:'#705a7e',accent:'#d1aceb',photo:'#93859e'}
+};
+let selected='light-gray';
+const $=id=>document.getElementById(id);
+function selectTheme(key,persist=false){
+  const palette=Object.hasOwn(palettes,key)?palettes[key]:null;if(!palette)return;
+  selected=key;
+  for(const name of ['bg','card','raised','field','ink','muted','line','accent','photo'])document.documentElement.style.setProperty('--'+name,palette[name]);
+  document.documentElement.style.colorScheme=palette.scheme;$('themeColor').content=palette.bg;
+  document.querySelectorAll('[data-theme]').forEach(button=>{const active=button.dataset.theme===key;button.setAttribute('aria-pressed',String(active));button.querySelector('.check').textContent=active?'✓':'';});
+  $('selection').textContent='目前選擇：'+palette.name;$('copyMessage').textContent='';$('manualCopy').hidden=true;
+  if(persist){try{localStorage.setItem('spsp.palettePreview.v1',key);}catch{}const url=new URL(location.href);url.searchParams.set('theme',key);history.replaceState(null,'',url);}
+}
+document.querySelector('.options').addEventListener('click',event=>{const button=event.target.closest('[data-theme]');if(button)selectTheme(button.dataset.theme,true);});
+$('copyChoice').addEventListener('click',async()=>{
+  const choice='我選擇「'+palettes[selected].name+'」配色';
+  try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(choice);$('copyMessage').textContent='已複製，回到聊天貼上即可。';}
+  catch{$('manualCopy').hidden=false;$('choiceText').value=choice;$('choiceText').focus();$('choiceText').select();$('copyMessage').textContent='可長按下方文字複製。';}
+});
+let initial=new URL(location.href).searchParams.get('theme');
+if(!initial){try{initial=localStorage.getItem('spsp.palettePreview.v1');}catch{}}
+selectTheme(Object.hasOwn(palettes,initial)?initial:'light-gray');
+</script>
+</body>
+</html>
