@@ -79,6 +79,9 @@ h1{font-size:17px;margin:0;font-weight:700}
 .status.confirmed{background:#163e2b;color:#91ecc0}
 .status.pending{background:var(--warn-bg);color:var(--warn)}
 .sizes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.sizes.multiple{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.front-size-note{font-size:13px;color:var(--muted);margin-top:12px}
+.front-size-note+.sizes{margin-top:7px}
 .size{padding:9px 10px;background:var(--bg);border:1px solid var(--line);border-radius:9px;min-width:0}
 .size .k{display:block;font-size:12px;color:var(--muted)}
 .size .v{display:block;font-size:23px;font-weight:700;margin-top:3px;line-height:1.25;overflow-wrap:anywhere}
@@ -92,6 +95,7 @@ h1{font-size:17px;margin:0;font-weight:700}
 .conn-zoom{background:var(--photo-bg);isolation:isolate;padding:3px;border-color:var(--line);line-height:0;flex:0 0 auto;max-width:48%;border-radius:9px;min-height:54px}
 .conn-thumb{display:block;width:140px;max-width:100%;height:auto;color:var(--ink);font-size:12px;mix-blend-mode:multiply;filter:brightness(1.15)}
 .connector-caption{font-size:12px;color:var(--muted);margin-top:4px}
+.connector-type{font-size:13px;color:var(--ink);margin-top:2px}
 .important-note{margin-top:12px;font-size:13px;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:9px 11px;overflow-wrap:anywhere}
 .detail{border-top:1px solid var(--line)}
 .detail summary{padding:0 15px;min-height:46px;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);cursor:pointer;list-style:none}
@@ -420,6 +424,7 @@ function renderChips(f){
   $('activeFilters').hidden=!chips.length;$('activeFilters').innerHTML=chips.join('');
 }
 function sizeText(raw){const value=text(raw);if(!value)return '未建檔';if(/^(無|沒有|無後雨刷|不適用)$/.test(value))return value==='不適用'?'不適用':'無此配備';return /^\d+(?:\.\d+)?$/.test(value)?value+'吋':value;}
+function frontSizes(row){const sizes=row.meta.frontSizes;return Array.isArray(sizes)&&sizes.length>2&&sizes.length<=6&&sizes.every(value=>text(value))?sizes.map(text):[row.v[5],row.v[6]];}
 function sizeMarkup(raw){const value=sizeText(raw),match=value.match(/^(\d+(?:\.\d+)?)\s*(吋|inch|in|\")$/i);return match?`<span class="v">${esc(match[1])}<span class="unit">吋</span></span>`:`<span class="v${/未建檔|無此配備|不適用/.test(value)?' missing':''}">${esc(value)}</span>`;}
 function connectorImage(code){return CONNECTOR_CODES.includes(code)?`img/connectors/${code}.webp`:'';}
 function thumb(code){const src=connectorImage(code);return src?`<button type="button" class="conn-zoom" data-zoom="${esc(code)}" aria-label="放大查看 SPSP 接頭 ${esc(code)}"><img class="conn-thumb" src="${src}" alt="SPSP 接頭 ${esc(code)}" width="400" height="140" loading="lazy" decoding="async"></button>`:'';}
@@ -436,15 +441,16 @@ function metadata(row){
   return {sources,checkedAt:meta.confirmedAt||meta.checkedAt||meta['核對日期']||'',updatedAt:meta.updatedAt||meta['更新日期']||'',history:historyLines};
 }
 function card(row){
-  const v=row.v,id=state.rows.indexOf(row),status=statusOf(row),code=connectorOf(row),saved=state.favorites.includes(row.key),meta=metadata(row);
+  const v=row.v,id=state.rows.indexOf(row),status=statusOf(row),code=connectorOf(row),saved=state.favorites.includes(row.key),meta=metadata(row),sizes=frontSizes(row),multiple=sizes.length>2;
   const warning=isUnfit(row)?'此車型目前沒有適用的 SPSP 接頭。':status==='pending'?'接頭或資料待確認，請先核對實車。':'';
   const dateWarning=[v[3],v[4]].some(value=>dateParts(value)?.month)?'含月份交界，請核對生產月份。':'';
   const sourceHtml=meta.sources.length?meta.sources.map(source=>`<li><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.label)}</a></li>`).join(''):'<li>未記錄獨立來源連結</li>';
   return `<article class="card" data-row="${id}"><div class="card-main">
     <div class="card-head"><div><div class="card-brand">${esc(v[0])}</div><h2 class="card-title">${esc(v[1])}</h2><div class="card-sub">${esc(yearRange(row))}${v[2]?'<br>車身代號 '+esc(v[2]):''}</div></div><button type="button" class="favorite" data-action="favorite" data-id="${id}" aria-pressed="${saved}" aria-label="${saved?'取消收藏':'收藏'} ${esc(v[0]+' '+v[1])}">${saved?'★':'☆'}</button></div>
     <span class="status ${status}">${statusLabel(status)}</span>
-    <div class="sizes"><div class="size"><span class="k">左尺寸</span>${sizeMarkup(v[5])}</div><div class="size"><span class="k">右尺寸</span>${sizeMarkup(v[6])}</div></div>
-    <div class="connector-line"><div class="connector-info"><span class="k">SPSP 接頭</span><strong class="connector-code${isUnfit(row)?' unfit':''}">${esc(code||'未建檔')}</strong><div class="connector-caption">${connectorImage(code)?'點圖片放大核對':'未提供對應圖片'}</div></div>${thumb(code)}</div>
+    ${multiple?`<div class="front-size-note">前雨刷共 ${sizes.length} 支</div>`:''}
+    <div class="sizes${multiple?' multiple':''}">${sizes.map((size,index)=>`<div class="size"><span class="k">${multiple?'前雨刷 '+(index+1):index===0?'左尺寸':'右尺寸'}</span>${sizeMarkup(size)}</div>`).join('')}</div>
+    <div class="connector-line"><div class="connector-info"><span class="k">SPSP 接頭</span><strong class="connector-code${isUnfit(row)?' unfit':''}">${esc(code||'未建檔')}</strong>${row.meta.connectorType?`<div class="connector-type">${esc(row.meta.connectorType)}</div>`:''}<div class="connector-caption">${connectorImage(code)?'點圖片放大核對':'未提供對應圖片'}</div></div>${thumb(code)}</div>
     ${warning||dateWarning?`<div class="important-note">${esc([warning,dateWarning].filter(Boolean).join(' '))}</div>`:''}
   </div><details class="detail" data-id="${id}"><summary><span>品牌對照與詳細資料</span>${v[14]?'<span class="note-indicator">有備註</span>':''}</summary><div class="detail-content"><div class="detail-grid">
     ${detailItem('最終接頭',v[10],true)}${detailItem('CARBUFF 對照',v[8])}${detailItem('PIAA 對照',v[9])}${detailItem('接頭說明',v[12],true)}${detailItem('完整備註',v[14],true)}
@@ -517,7 +523,7 @@ function toggleFavorite(row,id){
   if(state.view==='favorites'){renderSaved();($('favoritesList').querySelector('[data-action="favorite"]')||$('tab-favorites')).focus({preventScroll:true});}
   if(persisted)toast(saved?'已取消收藏':'已加入收藏');
 }
-function specification(row){return [row.v[0]+' '+row.v[1],yearRange(row)+(row.v[2]?'｜'+row.v[2]:''),'左：'+sizeText(row.v[5])+'／右：'+sizeText(row.v[6]),'SPSP 接頭：'+(connectorOf(row)||'未建檔'),'資料狀態：'+statusLabel(statusOf(row)),isUnfit(row)?'此車型 SPSP 接頭不適用。':'',row.v[14]?'備註：'+row.v[14]:'','安裝前請核對實車接頭及年式。'].filter(Boolean).join('\n');}
+function specification(row){const sizes=frontSizes(row);return [row.v[0]+' '+row.v[1],yearRange(row)+(row.v[2]?'｜'+row.v[2]:''),sizes.length>2?'前雨刷（'+sizes.length+' 支）：'+sizes.map(sizeText).join('＋'):'左：'+sizeText(row.v[5])+'／右：'+sizeText(row.v[6]),'SPSP 接頭：'+(connectorOf(row)||'未建檔')+(row.meta.connectorType?'（'+text(row.meta.connectorType)+'）':''),'資料狀態：'+statusLabel(statusOf(row)),isUnfit(row)?'此車型 SPSP 接頭不適用。':'',row.v[14]?'備註：'+row.v[14]:'','安裝前請核對實車接頭及年式。'].filter(Boolean).join('\n');}
 async function copyText(value,title='複製規格'){
   try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(value);toast('已複製');}
   catch{$('copyTitle').textContent=title;$('manualCopy').value=value;$('copyDialog').showModal();$('manualCopy').focus();$('manualCopy').select();}
