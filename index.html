@@ -209,7 +209,7 @@ body.locked>:not(#authGate){visibility:hidden}
       </div>
       <details class="advanced"><summary>更多篩選</summary><div class="filters">
         <div class="field"><label for="year">年式／車身代號</label><select id="year" disabled><option value="">請先選車型</option></select></div>
-        <div class="field"><label for="statusFilter">資料狀態</label><select id="statusFilter"><option value="">全部狀態</option><option value="confirmed">已人工確認</option><option value="unreviewed">尚未核對</option><option value="pending">需人工確認</option><option value="unfit">SPSP 不適用</option></select></div>
+        <div class="field"><label for="statusFilter">資料狀態</label><select id="statusFilter"><option value="">全部狀態</option><option value="confirmed">已確認（含使用者）</option><option value="unreviewed">尚未核對</option><option value="pending">需人工確認</option><option value="unfit">SPSP 不適用</option></select></div>
       </div></details>
       <div class="actions"><button class="btn-main" type="submit">查詢車型</button><button class="btn-quiet" id="btnReset" type="button">清除條件</button></div>
       <div id="activeFilters" class="active-filters" aria-label="已選條件" hidden></div>
@@ -320,10 +320,10 @@ function connectorOf(row){return text(row.v[11]);}
 function statusOf(row){
   const manual=text(row.v[13]), code=connectorOf(row);
   if(/待確認|需人工確認/.test(manual)||/待確認|需確認/.test(code)||!code)return 'pending';
-  if(manual==='已人工確認')return 'confirmed';
+  if(manual==='已人工確認'||manual==='使用者已確認')return 'confirmed';
   return 'unreviewed';
 }
-function statusLabel(status){return ({confirmed:'已人工確認',pending:'需人工確認',unreviewed:'尚未核對'})[status]||'尚未核對';}
+function statusLabel(status,row){if(status==='confirmed'&&row?.v[13]==='使用者已確認')return '使用者已確認';return ({confirmed:row?'已人工確認':'已確認（含使用者）',pending:'需人工確認',unreviewed:'尚未核對'})[status]||'尚未核對';}
 function isUnfit(row){return /不適用|無對應/.test(connectorOf(row));}
 function dateParts(value){
   const match=text(value).match(/^(\d{4})(?:\s*[/.\-年]\s*(\d{1,2}))?/);
@@ -447,7 +447,7 @@ function card(row){
   const sourceHtml=meta.sources.length?meta.sources.map(source=>`<li><a href="${esc(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.label)}</a></li>`).join(''):'<li>未記錄獨立來源連結</li>';
   return `<article class="card" data-row="${id}"><div class="card-main">
     <div class="card-head"><div><div class="card-brand">${esc(v[0])}</div><h2 class="card-title">${esc(v[1])}</h2><div class="card-sub">${esc(yearRange(row))}${v[2]?'<br>車身代號 '+esc(v[2]):''}</div></div><button type="button" class="favorite" data-action="favorite" data-id="${id}" aria-pressed="${saved}" aria-label="${saved?'取消收藏':'收藏'} ${esc(v[0]+' '+v[1])}">${saved?'★':'☆'}</button></div>
-    <span class="status ${status}">${statusLabel(status)}</span>
+    <span class="status ${status}">${statusLabel(status,row)}</span>
     ${multiple?`<div class="front-size-note">前雨刷共 ${sizes.length} 支</div>`:''}
     <div class="sizes${multiple?' multiple':''}">${sizes.map((size,index)=>`<div class="size"><span class="k">${multiple?'前雨刷 '+(index+1):index===0?'左尺寸':'右尺寸'}</span>${sizeMarkup(size)}</div>`).join('')}</div>
     <div class="connector-line"><div class="connector-info"><span class="k">SPSP 接頭</span><strong class="connector-code${isUnfit(row)?' unfit':''}">${esc(code||'未建檔')}</strong>${row.meta.connectorType?`<div class="connector-type">${esc(row.meta.connectorType)}</div>`:''}<div class="connector-caption">${connectorImage(code)?'點圖片放大核對':'未提供對應圖片'}</div></div>${thumb(code)}</div>
@@ -456,6 +456,7 @@ function card(row){
     ${detailItem('最終接頭',v[10],true)}${detailItem('CARBUFF 對照',v[8])}${detailItem('PIAA 對照',v[9])}${detailItem('接頭說明',v[12],true)}${detailItem('完整備註',v[14],true)}
   </div><details class="audit"><summary>來源、核對日期與修改紀錄</summary><div class="detail-grid">
     ${detailItem('本筆核對日期',meta.checkedAt||'尚未記錄')}${detailItem('本筆更新日期',meta.updatedAt||'尚未記錄')}
+    ${row.meta.confirmationSource?detailItem('確認來源',row.meta.confirmationSource):''}${row.meta.confirmationScope?detailItem('確認內容',row.meta.confirmationScope,true):''}
     <div class="detail-item wide"><span class="k">資料來源</span><ul>${sourceHtml}</ul></div>
     ${meta.history.length?`<div class="detail-item wide"><span class="k">修改紀錄</span><ul>${meta.history.map(line=>'<li>'+esc(line)+'</li>').join('')}</ul></div>`:detailItem('修改紀錄','尚未建立獨立紀錄；既有資訊請見完整備註。',true)}
     ${detailItem('資料庫版本',state.updatedAt||'未提供更新時間',true)}
@@ -523,7 +524,7 @@ function toggleFavorite(row,id){
   if(state.view==='favorites'){renderSaved();($('favoritesList').querySelector('[data-action="favorite"]')||$('tab-favorites')).focus({preventScroll:true});}
   if(persisted)toast(saved?'已取消收藏':'已加入收藏');
 }
-function specification(row){const sizes=frontSizes(row);return [row.v[0]+' '+row.v[1],yearRange(row)+(row.v[2]?'｜'+row.v[2]:''),sizes.length>2?'前雨刷（'+sizes.length+' 支）：'+sizes.map(sizeText).join('＋'):'左：'+sizeText(row.v[5])+'／右：'+sizeText(row.v[6]),'SPSP 接頭：'+(connectorOf(row)||'未建檔')+(row.meta.connectorType?'（'+text(row.meta.connectorType)+'）':''),'資料狀態：'+statusLabel(statusOf(row)),isUnfit(row)?'此車型 SPSP 接頭不適用。':'',row.v[14]?'備註：'+row.v[14]:'','安裝前請核對實車接頭及年式。'].filter(Boolean).join('\n');}
+function specification(row){const sizes=frontSizes(row);return [row.v[0]+' '+row.v[1],yearRange(row)+(row.v[2]?'｜'+row.v[2]:''),sizes.length>2?'前雨刷（'+sizes.length+' 支）：'+sizes.map(sizeText).join('＋'):'左：'+sizeText(row.v[5])+'／右：'+sizeText(row.v[6]),'SPSP 接頭：'+(connectorOf(row)||'未建檔')+(row.meta.connectorType?'（'+text(row.meta.connectorType)+'）':''),'資料狀態：'+statusLabel(statusOf(row),row),isUnfit(row)?'此車型 SPSP 接頭不適用。':'',row.v[14]?'備註：'+row.v[14]:'','安裝前請核對實車接頭及年式。'].filter(Boolean).join('\n');}
 async function copyText(value,title='複製規格'){
   try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(value);toast('已複製');}
   catch{$('copyTitle').textContent=title;$('manualCopy').value=value;$('copyDialog').showModal();$('manualCopy').focus();$('manualCopy').select();}
