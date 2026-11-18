@@ -35,7 +35,7 @@ input[type="search"]::-webkit-search-cancel-button{cursor:pointer}
 h1{font-size:17px;margin:0;font-weight:700}
 .version{font-size:12px;color:var(--muted);margin:3px 0 0}
 .data-date{display:inline-block;white-space:nowrap}
-.nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:12px}
+.nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:12px}
 .nav button{border:0;border-radius:8px 8px 0 0;min-height:46px;background:transparent;color:var(--muted);padding:9px 4px;font-weight:600;position:relative}
 .nav button[aria-selected="true"]{color:var(--accent);background:var(--card)}
 .nav button[aria-selected="true"]:after{content:"";position:absolute;bottom:0;left:22%;right:22%;height:3px;background:var(--accent);border-radius:3px 3px 0 0}
@@ -50,6 +50,11 @@ h1{font-size:17px;margin:0;font-weight:700}
 .search-field input{padding:12px 14px;min-height:50px}
 .filters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .filters>.field-connector{grid-column:1/-1}
+.size-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.size-filters .size-brand{grid-column:1/-1}
+.size-head{font-size:17px;margin:0 0 6px}
+.size-help{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.7}
+.size-caution{font-size:13px;color:var(--muted);margin:14px 0 0;line-height:1.7}
 .btn-main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
 .btn-main:active{background:var(--accent-active)}
 .btn-quiet{background:transparent;color:var(--muted)}
@@ -168,7 +173,7 @@ dialog::backdrop{background:rgba(0,0,0,.83)}
 .auth-box button{width:100%;font-size:16px}
 body.locked>:not(#authGate){visibility:hidden}
 @media(min-width:700px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.filters>.field-connector{grid-column:auto}.advanced .filters{grid-template-columns:1fr 1fr}.list{grid-template-columns:1fr 1fr;align-items:start}.nav{max-width:560px}.top{padding-top:18px}.wrap{padding-top:22px}.atlas-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.atlas-card{padding:18px}.atlas-card .conn-zoom{max-width:320px}.atlas-card p{font-size:14px}}
-@media(max-width:359px){.brand-row{gap:8px}.brand-mark{font-size:18px;padding-right:8px}h1{font-size:15px}.version{font-size:11px}.panel,.card-main{padding:12px}.sizes{gap:6px}.size{padding:8px}.size .v{font-size:21px}.size .v.missing{font-size:13px}.atlas-comparison{gap:8px}.atlas-card{padding:9px}.search-label .subtle{display:none}.card-title{font-size:16px}}
+@media(max-width:359px){.nav button{font-size:12px;padding:9px 2px}.brand-row{gap:8px}.brand-mark{font-size:18px;padding-right:8px}h1{font-size:15px}.version{font-size:11px}.panel,.card-main{padding:12px}.sizes{gap:6px}.size{padding:8px}.size .v{font-size:21px}.size .v.missing{font-size:13px}.atlas-comparison{gap:8px}.atlas-card{padding:9px}.search-label .subtle{display:none}.card-title{font-size:16px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -189,6 +194,7 @@ body.locked>:not(#authGate){visibility:hidden}
     <div class="brand-row"><div class="brand-mark">SPSP</div><div class="brand-details"><h1>雨刷尺寸／接頭查詢</h1><p class="version" id="dataMeta">載入資料中</p></div><button id="refreshData" class="refresh-button" type="button" aria-label="更新查詢資料" title="更新查詢資料">↻</button></div>
     <nav class="nav" aria-label="查詢功能" role="tablist">
       <button id="tab-search" role="tab" aria-controls="searchView" aria-selected="true" data-view="search">查詢</button>
+      <button id="tab-size" role="tab" aria-controls="sizeView" aria-selected="false" tabindex="-1" data-view="size">雨刷尺寸</button>
       <button id="tab-favorites" role="tab" aria-controls="favoritesView" aria-selected="false" tabindex="-1" data-view="favorites">收藏<span class="nav-count" id="favoriteCount">0</span></button>
       <button id="tab-recent" role="tab" aria-controls="recentView" aria-selected="false" tabindex="-1" data-view="recent">最近</button>
       <button id="tab-atlas" role="tab" aria-controls="atlasView" aria-selected="false" tabindex="-1" data-view="atlas">接頭圖鑑</button>
@@ -217,6 +223,22 @@ body.locked>:not(#authGate){visibility:hidden}
     <div class="meta"><strong id="countLabel" role="status" aria-live="polite">選擇條件或輸入車名</strong><select id="sort" aria-label="結果排序"><option value="brand">品牌／車型</option><option value="newest">年式新到舊</option><option value="oldest">年式舊到新</option></select></div>
     <div id="results" class="list"></div>
     <button id="loadMore" class="load-more" type="button" hidden>載入更多車型</button>
+  </section>
+  <section id="sizeView" role="tabpanel" aria-labelledby="tab-size" hidden>
+    <form id="sizeForm" class="panel">
+      <h2 class="size-head">依雨刷尺寸找車款</h2>
+      <p class="size-help">選一側或兩側尺寸即可反查，尺寸單位為吋。</p>
+      <div class="size-filters">
+        <div class="field"><label for="driverSize">主駕（左側）</label><select id="driverSize" disabled><option value="">不限尺寸</option></select></div>
+        <div class="field"><label for="passengerSize">副駕（右側）</label><select id="passengerSize" disabled><option value="">不限尺寸</option></select></div>
+        <div class="field size-brand"><label for="sizeBrand">品牌（可選）</label><select id="sizeBrand" disabled><option value="">全部品牌</option></select></div>
+      </div>
+      <div class="actions"><button class="btn-main" id="sizeSubmit" type="submit" disabled>反查車款</button><button id="resetSizes" class="btn-quiet" type="button">清除條件</button></div>
+      <p class="size-caution">尺寸相同可能使用不同接頭，請再核對車型、年式與實車接頭。</p>
+    </form>
+    <div class="meta"><strong id="sizeCountLabel" role="status" aria-live="polite">請先選擇雨刷尺寸</strong></div>
+    <div id="sizeResults" class="list"></div>
+    <button id="sizeLoadMore" class="load-more" type="button" hidden>載入更多車型</button>
   </section>
   <section id="favoritesView" role="tabpanel" aria-labelledby="tab-favorites" hidden><div class="saved-head"><div><h2>收藏車型</h2><p>儲存在目前這支手機或瀏覽器</p></div></div><div id="favoritesList" class="list"></div></section>
   <section id="recentView" role="tabpanel" aria-labelledby="tab-recent" hidden><div class="saved-head"><div><h2>最近查詢</h2><p>紀錄只儲存在目前瀏覽器</p></div><div class="saved-tools"><button id="undoRecent" type="button" hidden>復原</button><button id="clearRecent" class="btn-quiet" type="button">清除紀錄</button></div></div><div id="recentSearches" class="recent-searches" hidden><h3>最近搜尋</h3><div id="recentQueries" class="query-list"></div></div><h3 class="recent-vehicles-title">最近查看的車型</h3><div id="recentList" class="list"></div></section>
@@ -280,7 +302,8 @@ const PAGE_SIZE = 30;
 const CONNECTOR_CODES = ['A','B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B13','C','D','E','F','G'];
 const STORAGE_KEY = 'spsp.lookup.preferences.v2';
 const $ = id => document.getElementById(id);
-const state = { rows:[], matches:[], visible:PAGE_SIZE, view:'search', favorites:[], recent:[], searches:[], undoHistory:null, updatedAt:'', loaded:false, loading:false, imageZoom:100 };
+const state = { rows:[], matches:[], visible:PAGE_SIZE, sizeVisible:PAGE_SIZE, view:'search', favorites:[], recent:[], searches:[], undoHistory:null, updatedAt:'', loaded:false, loading:false, imageZoom:100 };
+const VIEWS = ['search','size','favorites','recent','atlas'];
 const BRAND_ALIASES = [
   ['VW','Volkswagen 大眾'],['Mercedes','Mercedes-Benz MercedesBenz 奔馳'],['BMW','寶馬 寶馬汽車'],
   ['Skoda','Škoda 斯柯達'],['Subaru','斯巴魯'],['Peugeot','標緻'],['Masarati','Maserati'],
@@ -425,6 +448,30 @@ function renderChips(f){
 }
 function sizeText(raw){const value=text(raw);if(!value)return '未建檔';if(/^(無|沒有|無後雨刷|不適用)$/.test(value))return value==='不適用'?'不適用':'無此配備';return /^\d+(?:\.\d+)?$/.test(value)?value+'吋':value;}
 function frontSizes(row){const sizes=row.meta.frontSizes;return Array.isArray(sizes)&&sizes.length>2&&sizes.length<=6&&sizes.every(value=>text(value))?sizes.map(text):[row.v[5],row.v[6]];}
+function sizeNumber(raw){const match=text(raw).normalize('NFKC').match(/^(\d+(?:\.\d+)?)\s*(?:吋|英吋|inch|in|["″])?$/i);return match&&Number(match[1])>0?String(Number(match[1])):'';}
+function availableSizes(side){return unique(state.rows.map(row=>sizeNumber(row.v[side]))).sort((a,b)=>Number(a)-Number(b));}
+function findSizeMatches(driver,passenger,brand=''){
+  const left=sizeNumber(driver),right=sizeNumber(passenger);
+  if((!left&&!right)||(text(driver)&&!left)||(text(passenger)&&!right))return [];
+  return state.rows.filter(row=>(!left||sizeNumber(row.v[5])===left)&&(!right||sizeNumber(row.v[6])===right)&&(!brand||row.v[0]===brand)).sort((a,b)=>compareZh(a.v[0],b.v[0])||compareZh(a.v[1],b.v[1])||dateSort(a)-dateSort(b));
+}
+function initSizeFilters(){
+  for(const [id,side] of [['driverSize',5],['passengerSize',6]]){const select=$(id);setOptions(select,'不限尺寸',availableSizes(side).map(value=>[value,value+' 吋']),select.value);select.disabled=!state.loaded;}
+  setOptions($('sizeBrand'),'全部品牌',unique(state.rows.map(row=>row.v[0])).sort(compareZh).map(brand=>[brand,brand]),$('sizeBrand').value);
+  $('sizeBrand').disabled=!state.loaded;$('sizeSubmit').disabled=!state.loaded;
+}
+function renderSizeResults(resetPage=true){
+  if(resetPage)state.sizeVisible=PAGE_SIZE;
+  $('sizeLoadMore').hidden=true;
+  if(!state.loaded){$('sizeCountLabel').textContent='等待查詢資料載入';$('sizeResults').innerHTML=empty('尚未載入資料','請先完成解鎖；若載入失敗，點上方更新按鈕重試。');return;}
+  const driver=$('driverSize').value,passenger=$('passengerSize').value,brand=$('sizeBrand').value;
+  if(!driver&&!passenger){$('sizeCountLabel').textContent='請先選擇雨刷尺寸';$('sizeResults').innerHTML=empty('知道尺寸，也能找到車款','例如主駕選 21 吋、副駕選 19 吋，查看符合的車型與接頭。');return;}
+  const rows=findSizeMatches(driver,passenger,brand),shown=Math.min(state.sizeVisible,rows.length),label=[driver?'主駕 '+driver+' 吋':'',passenger?'副駕 '+passenger+' 吋':''].filter(Boolean).join('＋');
+  $('sizeCountLabel').textContent=label+' · 找到 '+rows.length+' 筆'+(rows.length>shown?' · 已顯示 '+shown+' 筆':'');
+  $('sizeResults').innerHTML=rows.length?rows.slice(0,shown).map(card).join(''):empty('沒有符合這組尺寸的車款','可調整一側尺寸，或選擇全部品牌再查詢。');
+  $('sizeLoadMore').hidden=shown>=rows.length;$('sizeLoadMore').textContent='載入更多（還有 '+(rows.length-shown)+' 筆）';
+}
+function resetSizeFilters(){for(const id of ['driverSize','passengerSize','sizeBrand'])$(id).value='';renderSizeResults();}
 function sizeMarkup(raw){const value=sizeText(raw),match=value.match(/^(\d+(?:\.\d+)?)\s*(吋|inch|in|\")$/i);return match?`<span class="v">${esc(match[1])}<span class="unit">吋</span></span>`:`<span class="v${/未建檔|無此配備|不適用/.test(value)?' missing':''}">${esc(value)}</span>`;}
 function connectorImage(code){return CONNECTOR_CODES.includes(code)?`img/connectors/${code}.webp`:'';}
 function thumb(code){const src=connectorImage(code);return src?`<button type="button" class="conn-zoom" data-zoom="${esc(code)}" aria-label="放大查看 SPSP 接頭 ${esc(code)}"><img class="conn-thumb" src="${src}" alt="SPSP 接頭 ${esc(code)}" width="400" height="140" loading="lazy" decoding="async"></button>`:'';}
@@ -503,14 +550,15 @@ function remember(row){state.recent=[row.key,...state.recent.filter(key=>key!==r
 function rememberSearch(){const value=text($('keyword').value).slice(0,200);if(!value||!state.matches.length)return;state.searches=[value,...state.searches.filter(query=>norm(query)!==norm(value))].slice(0,6);savePreferences();}
 function clearHistory(){state.undoHistory={recent:[...state.recent],searches:[...state.searches]};state.recent=[];state.searches=[];savePreferences();renderSaved();toast('已清除最近紀錄，可按「復原」。');}
 function undoHistory(){if(!state.undoHistory)return;state.recent=unique([...state.recent,...state.undoHistory.recent]).slice(0,12);state.searches=unique([...state.searches,...state.undoHistory.searches]).slice(0,6);state.undoHistory=null;savePreferences();renderSaved();toast('已復原最近紀錄');}
-function jumpToResults(){const smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;$('countLabel').scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});}
+function jumpToResults(id='countLabel'){const smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;$(id).scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});}
 function setView(view){
-  if(!['search','favorites','recent','atlas'].includes(view))return;
+  if(!VIEWS.includes(view))return;
   if(view===state.view)return;
   state.view=view;
-  for(const name of ['search','favorites','recent','atlas']){$(name+'View').hidden=name!==view;$('tab-'+name).setAttribute('aria-selected',String(name===view));$('tab-'+name).tabIndex=name===view?0:-1;}
+  for(const name of VIEWS){$(name+'View').hidden=name!==view;$('tab-'+name).setAttribute('aria-selected',String(name===view));$('tab-'+name).tabIndex=name===view?0:-1;}
   if(view==='favorites'||view==='recent')renderSaved();
   if(view==='atlas')renderAtlas();
+  if(view==='size')renderSizeResults(false);
   window.scrollTo({top:0,behavior:'auto'});
 }
 function toast(message){clearTimeout(toast.timer);$('toast').textContent=message;$('toast').hidden=false;toast.timer=setTimeout(()=>$('toast').hidden=true,3300);}
@@ -574,7 +622,7 @@ async function loadData(){
     const rows=prepareRows(entries);if(!rows.length)throw new Error('Empty database');
     state.rows=rows;state.updatedAt=text(payload.updatedAt);state.loaded=true;
     $('dataMeta').innerHTML=`${state.rows.length} 筆車型${state.updatedAt?' · <span class="data-date">更新 '+esc(state.updatedAt)+'</span>':''}`;
-    if(!wasLoaded)readPreferences();syncDropdowns();query();renderSaved();if(state.view==='atlas')renderAtlas();if(!wasLoaded)openSharedVehicle();else toast('資料已更新，查詢條件已保留。');
+    if(!wasLoaded)readPreferences();syncDropdowns();query();renderSaved();initSizeFilters();renderSizeResults(false);if(state.view==='atlas')renderAtlas();if(!wasLoaded)openSharedVehicle();else toast('資料已更新，查詢條件已保留。');
   }catch(error){
     if(wasLoaded){$('dataMeta').textContent=`${state.rows.length} 筆車型 · 更新失敗，保留原資料`;toast('更新失敗，原資料仍可查詢。請稍後再試。');}
     else{$('dataMeta').textContent='資料載入失敗';$('results').innerHTML=`<div class="empty"><strong>暫時無法載入資料</strong><p>請確認網路連線，再試一次。</p><button type="button" data-retry>重新載入</button></div>`;}
@@ -590,15 +638,19 @@ $('keyword').addEventListener('compositionstart',()=>{composing=true;clearTimeou
 $('keyword').addEventListener('compositionend',()=>{composing=false;clearTimeout(searchTimer);searchTimer=setTimeout(()=>query(),160);});
 $('keyword').addEventListener('input',event=>{clearTimeout(searchTimer);if(!composing&&!event.isComposing)searchTimer=setTimeout(()=>query(),160);});
 $('btnReset').addEventListener('click',resetFilters);
+$('sizeForm').addEventListener('submit',event=>{event.preventDefault();renderSizeResults();jumpToResults('sizeCountLabel');});
+for(const id of ['driverSize','passengerSize','sizeBrand'])$(id).addEventListener('change',()=>renderSizeResults());
+$('resetSizes').addEventListener('click',resetSizeFilters);
+$('sizeLoadMore').addEventListener('click',()=>{state.sizeVisible+=PAGE_SIZE;renderSizeResults(false);});
 $('refreshData').addEventListener('click',loadData);
 $('clearRecent').addEventListener('click',clearHistory);$('undoRecent').addEventListener('click',undoHistory);
 $('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
 window.addEventListener('scroll',()=>{$('backToTop').hidden=window.scrollY<500;},{passive:true});
-window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY||event.key===null){readPreferences();state.undoHistory=null;if(state.loaded){renderSaved();if(state.view==='search')query(false);}}});
+window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY||event.key===null){readPreferences();state.undoHistory=null;if(state.loaded){renderSaved();if(state.view==='search')query(false);if(state.view==='size')renderSizeResults(false);}}});
 $('loadMore').addEventListener('click',()=>{state.visible+=PAGE_SIZE;renderMatches();});
 for(const id of ['compareA','compareB'])$(id).addEventListener('change',renderAtlas);
 document.querySelector('.nav').addEventListener('click',event=>{const button=event.target.closest('[data-view]');if(button)setView(button.dataset.view);});
-document.querySelector('.nav').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;const views=['search','favorites','recent','atlas'];let index=views.indexOf(state.view);index=event.key==='Home'?0:event.key==='End'?3:(index+(event.key==='ArrowRight'?1:3))%4;event.preventDefault();setView(views[index]);$('tab-'+views[index]).focus();});
+document.querySelector('.nav').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;const views=VIEWS;let index=views.indexOf(state.view);index=event.key==='Home'?0:event.key==='End'?views.length-1:(index+(event.key==='ArrowRight'?1:views.length-1))%views.length;event.preventDefault();setView(views[index]);$('tab-'+views[index]).focus();});
 document.addEventListener('click',async event=>{
   const retry=event.target.closest('[data-retry]');if(retry){await loadData();return;}
   const close=event.target.closest('[data-close]');if(close){$(close.dataset.close).close();return;}
