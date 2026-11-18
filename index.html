@@ -299,6 +299,7 @@ async function ensureAuth(){
 }
 
 const PAGE_SIZE = 30;
+const APP_UPDATED_AT = '2026-11-18';
 const CONNECTOR_CODES = ['A','B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B13','C','D','E','F','G'];
 const STORAGE_KEY = 'spsp.lookup.preferences.v2';
 const $ = id => document.getElementById(id);
@@ -621,7 +622,7 @@ async function loadData(){
     if(!Array.isArray(entries)||!entries.length)throw new Error('Invalid database format');
     const rows=prepareRows(entries);if(!rows.length)throw new Error('Empty database');
     state.rows=rows;state.updatedAt=text(payload.updatedAt);state.loaded=true;
-    $('dataMeta').innerHTML=`${state.rows.length} 筆車型${state.updatedAt?' · <span class="data-date">更新 '+esc(state.updatedAt)+'</span>':''}`;
+    $('dataMeta').innerHTML=`${state.rows.length} 筆車型 · <span class="data-date">更新 ${esc(APP_UPDATED_AT)}</span>`;
     if(!wasLoaded)readPreferences();syncDropdowns();query();renderSaved();initSizeFilters();renderSizeResults(false);if(state.view==='atlas')renderAtlas();if(!wasLoaded)openSharedVehicle();else toast('資料已更新，查詢條件已保留。');
   }catch(error){
     if(wasLoaded){$('dataMeta').textContent=`${state.rows.length} 筆車型 · 更新失敗，保留原資料`;toast('更新失敗，原資料仍可查詢。請稍後再試。');}
