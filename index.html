@@ -299,7 +299,7 @@ async function ensureAuth(){
 }
 
 const PAGE_SIZE = 30;
-const APP_UPDATED_AT = '2026-11-18';
+const APP_UPDATED_AT = '2026-11-20';
 const CONNECTOR_CODES = ['A','B1','B2','B3','B4','B5','B6','B7','B8','B9','B10','B11','B13','C','D','E','F','G'];
 const STORAGE_KEY = 'spsp.lookup.preferences.v2';
 const $ = id => document.getElementById(id);
@@ -474,8 +474,17 @@ function renderSizeResults(resetPage=true){
 }
 function resetSizeFilters(){for(const id of ['driverSize','passengerSize','sizeBrand'])$(id).value='';renderSizeResults();}
 function sizeMarkup(raw){const value=sizeText(raw),match=value.match(/^(\d+(?:\.\d+)?)\s*(吋|inch|in|\")$/i);return match?`<span class="v">${esc(match[1])}<span class="unit">吋</span></span>`:`<span class="v${/未建檔|無此配備|不適用/.test(value)?' missing':''}">${esc(value)}</span>`;}
-function connectorImage(code){return CONNECTOR_CODES.includes(code)?`img/connectors/${code}.webp`:'';}
-function thumb(code){const src=connectorImage(code);return src?`<button type="button" class="conn-zoom" data-zoom="${esc(code)}" aria-label="放大查看 SPSP 接頭 ${esc(code)}"><img class="conn-thumb" src="${src}" alt="SPSP 接頭 ${esc(code)}" width="400" height="140" loading="lazy" decoding="async"></button>`:'';}
+function isB2TopLock19(row){return connectorOf(row)==='B2'&&text(row.v[10]).normalize('NFKC').replace(/\s+/g,'').toLowerCase()==='上鎖式(19mm)';}
+function connectorImage(code,topLock19=false){
+  if(code==='B2'&&topLock19)return 'img/connectors/B2-top-lock-19mm.jpg';
+  return CONNECTOR_CODES.includes(code)?`img/connectors/${code}.webp`:'';
+}
+function connectorPhotoLabel(code,topLock19){return 'SPSP 接頭 '+code+(code==='B2'&&topLock19?' 上鎖式 19 mm':'');}
+function thumb(code,topLock19=false){
+  const src=connectorImage(code,topLock19);if(!src)return '';
+  const label=esc(connectorPhotoLabel(code,topLock19)),variant=code==='B2'&&topLock19;
+  return `<button type="button" class="conn-zoom" data-zoom="${esc(code)}"${variant?' data-zoom-variant="top-lock-19"':''} aria-label="放大查看 ${label}"><img class="conn-thumb" src="${src}" alt="${label}" width="${variant?1280:400}" height="${variant?426:140}" loading="lazy" decoding="async"></button>`;
+}
 function detailItem(label,value,wide=false){return `<div class="detail-item${wide?' wide':''}"><span class="k">${esc(label)}</span><div class="v">${esc(value||'未建檔')}</div></div>`;}
 function metadata(row){
   const meta=row.meta;
@@ -498,7 +507,7 @@ function card(row){
     <span class="status ${status}">${statusLabel(status,row)}</span>
     ${multiple?`<div class="front-size-note">前雨刷共 ${sizes.length} 支</div>`:''}
     <div class="sizes${multiple?' multiple':''}">${sizes.map((size,index)=>`<div class="size"><span class="k">${multiple?'前雨刷 '+(index+1):index===0?'左尺寸':'右尺寸'}</span>${sizeMarkup(size)}</div>`).join('')}</div>
-    <div class="connector-line"><div class="connector-info"><span class="k">SPSP 接頭</span><strong class="connector-code${isUnfit(row)?' unfit':''}">${esc(code||'未建檔')}</strong>${row.meta.connectorType?`<div class="connector-type">${esc(row.meta.connectorType)}</div>`:''}<div class="connector-caption">${connectorImage(code)?'點圖片放大核對':'未提供對應圖片'}</div></div>${thumb(code)}</div>
+    <div class="connector-line"><div class="connector-info"><span class="k">SPSP 接頭</span><strong class="connector-code${isUnfit(row)?' unfit':''}">${esc(code||'未建檔')}</strong>${row.meta.connectorType?`<div class="connector-type">${esc(row.meta.connectorType)}</div>`:''}<div class="connector-caption">${connectorImage(code)?'點圖片放大核對':'未提供對應圖片'}</div></div>${thumb(code,isB2TopLock19(row))}</div>
     ${warning||dateWarning?`<div class="important-note">${esc([warning,dateWarning].filter(Boolean).join(' '))}</div>`:''}
   </div><details class="detail" data-id="${id}"><summary><span>品牌對照與詳細資料</span>${v[14]?'<span class="note-indicator">有備註</span>':''}</summary><div class="detail-content"><div class="detail-grid">
     ${detailItem('最終接頭',v[10],true)}${detailItem('CARBUFF 對照',v[8])}${detailItem('PIAA 對照',v[9])}${detailItem('接頭說明',v[12],true)}${detailItem('完整備註',v[14],true)}
@@ -590,17 +599,19 @@ function connectorDescription(code){return unique(state.rows.filter(r=>connector
 function connectorCount(code){return state.rows.filter(row=>connectorOf(row)===code).length;}
 function atlasCard(code){
   const description=connectorDescription(code),count=connectorCount(code);
-  return `<article class="atlas-card"><h3>${esc(code)}</h3>${thumb(code)}<p>${esc(description||'目前沒有此接頭的文字說明。')}</p><p>對應車型 ${count} 筆</p><div class="gallery-detail">型錄接頭圖；多角度照片與安裝步驟尚未建檔。</div><button type="button" class="btn-use" data-use-connector="${esc(code)}" ${count?'':'disabled'}>${count?'查適用車型':'尚無車型資料'}</button></article>`;
+  const photos=code==='B2'?`<p>上鎖式 19 mm</p>${thumb(code,true)}<p>其他 B2 車款參考圖</p>${thumb(code)}`:thumb(code);
+  return `<article class="atlas-card"><h3>${esc(code)}</h3>${photos}<p>${esc(description||'目前沒有此接頭的文字說明。')}</p><p>對應車型 ${count} 筆</p><div class="gallery-detail">${code==='B2'?'接頭參考圖。安裝前請核對實車。':'型錄接頭圖；多角度照片與安裝步驟尚未建檔。'}</div><button type="button" class="btn-use" data-use-connector="${esc(code)}" ${count?'':'disabled'}>${count?'查適用車型':'尚無車型資料'}</button></article>`;
 }
 function renderAtlas(){
   if(!$('compareA').options.length){for(const id of ['compareA','compareB'])setOptions($(id),'選擇接頭',CONNECTOR_CODES.map(code=>[code,code]),'');$('compareA').value='B1';$('compareB').value='B2';}
   $('atlasComparison').innerHTML=[$('compareA').value,$('compareB').value].map(code=>code?atlasCard(code):empty('選擇一款接頭','可並排核對圖片')).join('');
   $('atlasGrid').innerHTML=CONNECTOR_CODES.map(code=>`<button type="button" class="atlas-tile" data-compare="${code}" aria-label="比較接頭 ${code}，${connectorCount(code)} 筆車型"><strong>${code}</strong><span class="tile-count">${connectorCount(code)}</span></button>`).join('');
 }
-function openImage(code){
-  const src=connectorImage(code);if(!src)return;
-  $('imageTitle').textContent='SPSP 接頭 '+code;$('imageLarge').src=src;$('imageLarge').alt='SPSP 接頭 '+code+' 型錄圖片';
-  $('imageDescription').textContent=connectorDescription(code)||'目前僅提供型錄圖片，安裝前請依實車核對接頭形狀與卡榫。';
+function openImage(code,topLock19=false){
+  const src=connectorImage(code,topLock19);if(!src)return;
+  const label=connectorPhotoLabel(code,topLock19);
+  $('imageTitle').textContent=label;$('imageLarge').src=src;$('imageLarge').alt=label+' 圖片';
+  $('imageDescription').textContent=code==='B2'&&topLock19?'安裝前請核對實車接頭與 19 mm 寬度。':connectorDescription(code)||'目前僅提供型錄圖片，安裝前請依實車核對接頭形狀與卡榫。';
   setImageZoom(100);$('imageDialog').showModal();
 }
 function setImageZoom(value){state.imageZoom=Math.max(100,Math.min(300,value));$('imageLarge').style.width=state.imageZoom+'%';$('imageScale').textContent=state.imageZoom+'%'+(state.imageZoom>100?' · 可左右滑動圖片':'');$('imageSmaller').disabled=state.imageZoom===100;$('imageBigger').disabled=state.imageZoom===300;if(state.imageZoom===100){$('imageViewport').scrollLeft=0;$('imageViewport').scrollTop=0;}}
@@ -655,7 +666,7 @@ document.querySelector('.nav').addEventListener('keydown',event=>{if(!['ArrowLef
 document.addEventListener('click',async event=>{
   const retry=event.target.closest('[data-retry]');if(retry){await loadData();return;}
   const close=event.target.closest('[data-close]');if(close){$(close.dataset.close).close();return;}
-  const zoom=event.target.closest('[data-zoom]');if(zoom){openImage(zoom.dataset.zoom);return;}
+  const zoom=event.target.closest('[data-zoom]');if(zoom){openImage(zoom.dataset.zoom,zoom.dataset.zoomVariant==='top-lock-19');return;}
   const scale=event.target.closest('[data-image-step]');if(scale){setImageZoom(state.imageZoom+Number(scale.dataset.imageStep));return;}
   if(event.target.closest('[data-image-reset]')){setImageZoom(100);return;}
   if(event.target.closest('[data-reset]')){resetFilters();$('keyword').focus();return;}
